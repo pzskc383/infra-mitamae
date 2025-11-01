@@ -1,0 +1,4 @@
+misc/dist !text !filter !merge !diff
+dist/* filter=lfs diff=lfs merge=lfs -text
+dist/* !text !filter !merge !diff
+misc/* !text !filter !merge !diff
