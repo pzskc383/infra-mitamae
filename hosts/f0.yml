@@ -1,0 +1,22 @@
+---
+f0rk:
+  run_list:
+    - cookbooks/openbsd_server/default.rb
+  attributes:
+    dns_shortname: f0
+    ssh_options:
+      # @encrypt
+      host_name: 152.53.60.123
+    network_setup:
+      v4:
+        address: 152.53.60.123
+        gateway: 152.53.60.1
+        resolvers:
+          - 46.38.225.230
+          - 46.38.252.230
+      v6:
+        address: 2a0a:4cc0:40:2074::1
+        gateway: fe80::1%vio0
+        resolvers:
+          - 2a03:4000:0:1::e1e6
+          - 2a03:4000:8000::fce6

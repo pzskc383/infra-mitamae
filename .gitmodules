@@ -1,18 +1,20 @@
+[submodule "plugins/mitamae-plugin-resource-cron"]
+	path = plugins/mitamae-plugin-resource-cron
+	url = https://github.com/itamae-plugins/mitamae-plugin-resource-cron
+
+[submodule "hocho"]
+	path = vendor/gems/hocho
+	url = https://github.com/sorah/hocho
 [submodule "mitamae"]
 	path = misc/mitamae
 	url = https://github.com/itamae-kitchen/mitamae
+
 [submodule "example-ruby-infra"]
 	path = misc/example-ruby-infra
 	url = https://github.com/ruby/ruby-infra-recipe
 [submodule "example-ruby-git"]
 	path = misc/example-ruby-git
 	url = https://github.com/ruby/git.ruby-lang.org
-[submodule "hocho"]
-	path = vendor/gems/hocho
-	url = https://github.com/sorah/hocho
 [submodule "sorah-cnw"]
 	path = misc/sorah-cnw
 	url = https://github.com/sorah/cnw
-[submodule "plugins/mitamae-plugin-resource-cron"]
-	path = plugins/mitamae-plugin-resource-cron
-	url = https://github.com/itamae-plugins/mitamae-plugin-resource-cron
