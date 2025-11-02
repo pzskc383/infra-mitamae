@@ -1,0 +1,12 @@
+[submodule "mitamae"]
+	path = misc/mitamae
+	url = https://github.com/itamae-kitchen/mitamae
+[submodule "example-ruby-infra"]
+	path = misc/example-ruby-infra
+	url = https://github.com/ruby/ruby-infra-recipe
+[submodule "example-ruby-git"]
+	path = misc/example-ruby-git
+	url = https://github.com/ruby/git.ruby-lang.org
+[submodule "hocho"]
+	path = vendor/gems/hocho
+	url = https://github.com/sorah/hocho

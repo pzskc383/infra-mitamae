@@ -1,0 +1,13 @@
+---
+creation_rules:
+  - path_regex: "inventory/.*\\.yml$"
+    encrypted_comment_regex: "@encrypt"
+    age: age164ks3834tl730zauvzv5gzsenrqly3w28kn0fpuhh59yaca5g3lqp8cvjj
+
+stores:
+  json:
+    indent: 2
+  json_binary:
+    indent: 2
+  yaml:
+    indent: 2
