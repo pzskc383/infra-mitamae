@@ -13,3 +13,6 @@
 [submodule "sorah-cnw"]
 	path = misc/sorah-cnw
 	url = https://github.com/sorah/cnw
+[submodule "plugins/mitamae-plugin-resource-cron"]
+	path = plugins/mitamae-plugin-resource-cron
+	url = https://github.com/itamae-plugins/mitamae-plugin-resource-cron

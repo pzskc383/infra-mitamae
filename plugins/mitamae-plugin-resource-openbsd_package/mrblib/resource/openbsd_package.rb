@@ -12,6 +12,10 @@ module ::MItamae
         define_attribute :version, type: String
         define_attribute :flavor, type: String
         define_attribute :branch, type: String
+
+        def resource_type
+          @resource_type ||= 'openbsd_package'
+        end
       end
     end
   end

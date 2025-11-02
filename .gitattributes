@@ -1,5 +1,5 @@
-dist/mitamae-x86_64-openbsd filter=lfs diff=lfs merge=lfs -text
-dist/mitamae-arm64-openbsd filter=lfs diff=lfs merge=lfs -text
+misc/dist/mitamae-x86_64-openbsd filter=lfs diff=lfs merge=lfs -text
+misc/dist/mitamae-arm64-openbsd filter=lfs diff=lfs merge=lfs -text
 misc !text !filter !merge !diff
 misc/dist !text !filter !merge !diff
 dist/* filter=lfs diff=lfs merge=lfs -text

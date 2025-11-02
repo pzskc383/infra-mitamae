@@ -1,3 +1,4 @@
+---
 plugins:
   - rubocop-rake
 
@@ -15,8 +16,11 @@ Style/RegexpLiteral:
   EnforcedStyle: percent_r
 
 Metrics/MethodLength:
-  CountAsOne: [ 'array', 'hash', 'heredoc', 'method_call']
+  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
   Max: 20
 
 Metrics/AbcSize:
   CountRepeatedAttributes: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
