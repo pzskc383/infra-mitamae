@@ -162,7 +162,6 @@ end
 namespace :vm do
   desc 'Build a fresh vm with packer'
   task :build do
-
   end
 end
 

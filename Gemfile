@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'rake'
 gem 'hocho', path: 'vendor/gems/hocho'
+gem 'rake'
 
 # group :test do
 #   source "https://rubygems.cinc.sh" do
@@ -17,3 +17,5 @@ gem 'hocho', path: 'vendor/gems/hocho'
 #   gem "vagrant", git: "https://github.com/hashicorp/vagrant.git", tag: "v2.4.9"
 #   gem "vagrant-libvirt", "~> 0.12"
 # end
+
+gem 'rubocop', '~> 1.81'

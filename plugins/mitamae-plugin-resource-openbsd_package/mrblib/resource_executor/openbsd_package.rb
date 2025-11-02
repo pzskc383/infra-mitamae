@@ -44,7 +44,7 @@ class ::MItamae::Plugin::ResourceExecutor::OpenBSDPackage < ::MItamae::ResourceE
   end
 
   def installed_info(pkg_name)
-    info = {name: pkg_name}
+    info = { name: pkg_name }
     fuzzy_check_result = run_command(['pkg_info', '-qze', "#{pkg_name}-*"])
 
     fuzzy_re = %r[\A
@@ -101,7 +101,7 @@ class ::MItamae::Plugin::ResourceExecutor::OpenBSDPackage < ::MItamae::ResourceE
     if !vm or !vm.has?(:version)
       raise RuntimeError("Can't find version in version check output!")
     end
-    
+
     vm[:version]
   end
 
@@ -112,7 +112,7 @@ class ::MItamae::Plugin::ResourceExecutor::OpenBSDPackage < ::MItamae::ResourceE
   def install_package(info)
     name = info.name
 
-    if info.version and info.branch 
+    if info.version and info.branch
       raise RuntimeError("Specify either branch or version")
     end
 
