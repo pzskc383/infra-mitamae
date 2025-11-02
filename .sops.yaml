@@ -1,6 +1,6 @@
 ---
 creation_rules:
-  - path_regex: "inventory/.*\\.yml$"
+  - path_regex: "(hocho|hosts)\\.yml$"
     encrypted_comment_regex: "@encrypt"
     age: age164ks3834tl730zauvzv5gzsenrqly3w28kn0fpuhh59yaca5g3lqp8cvjj
 

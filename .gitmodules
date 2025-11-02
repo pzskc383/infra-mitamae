@@ -10,3 +10,6 @@
 [submodule "hocho"]
 	path = vendor/gems/hocho
 	url = https://github.com/sorah/hocho
+[submodule "sorah-cnw"]
+	path = misc/sorah-cnw
+	url = https://github.com/sorah/cnw

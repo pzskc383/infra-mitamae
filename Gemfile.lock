@@ -13,6 +13,8 @@ GEM
     ansi (1.5.0)
     ast (2.4.3)
     base64 (0.2.0)
+    bcrypt_pbkdf (1.1.1)
+    ed25519 (1.4.0)
     hashie (4.1.0)
     itamae (1.14.1)
       ansi
@@ -50,6 +52,9 @@ GEM
     rubocop-ast (1.47.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
+    rubocop-rake (0.7.1)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.1)
     ruby-progressbar (1.13.0)
     schash (0.1.2)
     sfl (2.3)
@@ -63,14 +68,22 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
+    x25519 (1.0.10)
 
 PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  bcrypt_pbkdf
+  ed25519
   hocho!
   rake
   rubocop (~> 1.81)
+  rubocop-rake (~> 0.7.1)
+  x25519
+
+RUBY VERSION
+   ruby 3.4.7p58
 
 BUNDLED WITH
    2.6.9

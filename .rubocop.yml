@@ -1,0 +1,22 @@
+plugins:
+  - rubocop-rake
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - 'misc/**/*'
+    - 'dist/**/*'
+    - 'vendor/gems/**/*'
+
+Style/Documentation:
+  Enabled: false
+
+Style/RegexpLiteral:
+  EnforcedStyle: percent_r
+
+Metrics/MethodLength:
+  CountAsOne: [ 'array', 'hash', 'heredoc', 'method_call']
+  Max: 20
+
+Metrics/AbcSize:
+  CountRepeatedAttributes: false
