@@ -1,4 +1,11 @@
 ---
+inventory_providers:
+  - file:
+    path: './hosts'
+
+initializers:
+  - site.rb
+
 property_providers:
   - add_default:
       properties:
@@ -66,6 +73,7 @@ property_providers:
             servers:
               - airstrip1
               - b0rsch
+
 driver_options:
   mitamae:
     mitamae_path: /usr/local/bin/mitamae

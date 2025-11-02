@@ -8,6 +8,9 @@ AllCops:
     - 'misc/**/*'
     - 'dist/**/*'
     - 'vendor/gems/**/*'
+    - 'plugins/**/*'
+  Include:
+    - 'plugins/*openbsd_package/**/*'
 
 Style/Documentation:
   Enabled: false

@@ -8,7 +8,7 @@ gem 'bcrypt_pbkdf'
 gem 'ed25519'
 gem 'x25519'
 
-gem 'itamae-secrets'
+# gem 'itamae-secrets'
 
 gem 'rake'
 
