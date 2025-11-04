@@ -46,17 +46,18 @@ module ::MItamae
         private
 
         def attributes_changed?
-          %(version branch flavor).any? do |m|
-            current.send(m) != desired.send(m)
+          %i[version branch flavor].each do |m|
+            return true if current.send(m) != desired.send(m)
           end
+          false
         end
 
         def set_current_attributes(current, _action)
           installed_info = installed_info(attributes.name)
 
           current.installed = !installed_info.nil?
-          %w[version branch flavor].each do |k|
-            current.send("#{k}=", installed_info.fetch(k))
+          %i[version branch flavor].each do |k|
+            current.send("#{k}=", installed_info[k])
           end
         end
 
@@ -81,7 +82,7 @@ module ::MItamae
 
           info
         rescue
-          nil
+          info
         end
 
         def get_version(pkg_name)

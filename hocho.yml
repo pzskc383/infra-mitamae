@@ -1,9 +1,6 @@
 inventory_providers:
-  - file:
+  - sops_file:
       path: ./hosts
-
-initializers:
-  - site.rb
 
 property_providers:
   - add_default:
@@ -11,11 +8,10 @@ property_providers:
         preferred_driver: mitamae
         sudo_required: false
         ssh_options:
-          port: 38322
           user: root
 
   - ruby_script:
-      file: default_vars.rb
+      file: lib/property_script.rb
 
 driver_options:
   mitamae:

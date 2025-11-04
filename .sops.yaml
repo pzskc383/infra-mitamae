@@ -1,7 +1,7 @@
 ---
 creation_rules:
-  - path_regex: "\\.yml$"
-    encrypted_comment_regex: "@encrypt"
+  - path_regex: "\\.sops.yml$"
+    encrypted_regex: .+
     pgp: 79F51922C72D82B81B2A20C234B4AFADB4E7D7A3
 
 stores:
