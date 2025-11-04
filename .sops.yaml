@@ -1,8 +1,8 @@
 ---
 creation_rules:
-  - path_regex: "(hocho|hosts)\\.yml$"
+  - path_regex: "\\.yml$"
     encrypted_comment_regex: "@encrypt"
-    age: age164ks3834tl730zauvzv5gzsenrqly3w28kn0fpuhh59yaca5g3lqp8cvjj
+    pgp: 79F51922C72D82B81B2A20C234B4AFADB4E7D7A3
 
 stores:
   json:

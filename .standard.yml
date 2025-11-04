@@ -1,0 +1,13 @@
+fix: true
+parallel: true
+format: progress
+ruby_version: 3.0
+default_ignores: true
+
+ignore:
+  - 'misc/**/*'
+  - 'hack/gems/**/*'
+  - 'plugins/mitamae-plugin-resource-cron/**/*'
+
+plugins:
+  - standard-performance

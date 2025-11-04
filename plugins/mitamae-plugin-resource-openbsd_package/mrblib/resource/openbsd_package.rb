@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+puts "puts from openbsd_package/resource.rb"
 
 module ::MItamae
   module Plugin
@@ -14,9 +14,21 @@ module ::MItamae
         define_attribute :branch, type: String
 
         def resource_type
-          @resource_type ||= 'openbsd_package'
+          "openbsd_package"
         end
       end
     end
+  end
+end
+
+# Manually register with correct method name due to mitamae's regex bug
+# with consecutive capitals (OpenBSDPackage → open_bsdpackage via buggy regex)
+MItamae::RecipeContext.class_eval do
+  # Remove the incorrectly-named method mitamae auto-registered
+  undef_method(:open_bsdpackage) if method_defined?(:open_bsdpackage)
+
+  # Register with correct name
+  define_method(:openbsd_package) do |name, &block|
+    @recipe.children << MItamae::Plugin::Resource::OpenBSDPackage.new(name, @recipe, @variables, &block)
   end
 end

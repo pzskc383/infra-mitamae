@@ -1,8 +1,9 @@
-# frozen_string_literal: true
+puts "puts from openbsd_package/resource_executor.rb"
 
 module ::MItamae
   module Plugin
     module ResourceExecutor
+      OpenBSDPackageError = Class.new(RuntimeError)
       class OpenBSDPackage < ::MItamae::ResourceExecutor::Base
         VERSION_RE = %r{\A
           (?<name>
@@ -69,45 +70,45 @@ module ::MItamae
         end
 
         def installed_info(pkg_name)
-          info = { name: pkg_name }
-          fuzzy_check_result = run_command(['pkg_info', '-qze', "#{pkg_name}-*"])
+          info = {name: pkg_name}
+          fuzzy_check_result = run_command(["pkg_info", "-qze", "#{pkg_name}-*"])
 
-          fm = fuzzy_re.match(fuzzy_check_result.stdout.lines.first.chomp)
+          fm = FUZZY_RE.match(fuzzy_check_result.stdout.lines.first.chomp)
 
           info[:flavor] = fm[:flavor] if fm[:flavor]
           info[:branch] = fm[:branch] if fm[:branch]
           info[:version] = get_version(pkg_name)
 
           info
-        rescue Error
+        rescue
           nil
         end
 
         def get_version(pkg_name)
-          version_result = run_command(['pkg_info', '-qSe', "#{pkg_name}-*"])
+          version_result = run_command(["pkg_info", "-qSe", "#{pkg_name}-*"])
 
-          raise RuntimeError('Invalid version check result!') if version_result.exit_status != 0
+          raise OpenBSDPackageError("Invalid version check result!") if version_result.exit_status != 0
 
-          vm = version_re.match(version_result.stdout.lines.first.chomp)
+          vm = VERSION_RE.match(version_result.stdout.lines.first.chomp)
 
-          raise RuntimeError("Can't find version in version check output!") if !vm || !vm.has?(:version)
+          raise OpenBSDPackageError("Can't find version in version check output!") if !vm || !vm.has?(:version)
 
           vm[:version]
         end
 
         def delete_package(pkg_name)
-          run_command(['pkg_delete', pkg_name])
+          run_command(["pkg_delete", pkg_name])
         end
 
         def install_package(info)
-          raise RuntimeError('Specify either branch or version') if info.version && info.branch
+          raise OpenBSDPackageError("Specify either branch or version") if info.version && info.branch
 
-          version = info.version or ''
+          version = info.version or ""
           pkg_name = "#{info.name}-#{version}-"
-          pkg_name = "#{pkg_name}#{flavor}" if flavor
-          pkg_name = "#{pkg_name}%#{branch}" if branch && info.version.nil?
+          pkg_name = "#{pkg_name}#{info.flavor}" if info.flavor
+          pkg_name = "#{pkg_name}%#{info.branch}" if info.branch && info.version.nil?
 
-          run_command(['pkg_add', pkg_name])
+          run_command(["pkg_add", pkg_name])
         end
       end
     end

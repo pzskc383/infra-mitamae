@@ -1,29 +1,30 @@
----
 # yamllint disable rule:line-length
 b0rsch:
-  run_list:
-    - cookbooks/openbsd_server/default.rb
-  attributes:
-    dns_shortname: b0
+  properties:
+    run_list:
+      - cookbooks/openbsd_server/default.rb
     ssh_options:
       # @encrypt
       host_name: 172.105.89.59
-    network_setup:
-      v4:
-        address: 172.105.89.59
-        gateway: 172.105.89.1
-        resolvers:
-          - 139.162.130.5
-          - 139.162.131.5
-          - 139.162.132.5
-          - 139.162.133.5
-          - 139.162.134.5
-      v6:
-        address: 2a01:7e01::f03c:92ff:fe91:dc90
-        gateway: fe80::1%vio0
-        resolvers:
-          - 2a01:7e01::5
-          - 2a01:7e01::9
-          - 2a01:7e01::7
-          - 2a01:7e01::c
-          - 2a01:7e01::2
+    attributes:
+      dns_shortname: b0
+      # @encrypt
+      network_setup:
+        v4:
+          address: 172.105.89.59
+          gateway: 172.105.89.1
+          resolvers:
+            - 139.162.130.5
+            - 139.162.131.5
+            - 139.162.132.5
+            - 139.162.133.5
+            - 139.162.134.5
+        v6:
+          address: 2a01:7e01::f03c:92ff:fe91:dc90
+          gateway: fe80::1%vio0
+          resolvers:
+            - 2a01:7e01::5
+            - 2a01:7e01::9
+            - 2a01:7e01::7
+            - 2a01:7e01::c
+            - 2a01:7e01::2

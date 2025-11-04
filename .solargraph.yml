@@ -1,0 +1,34 @@
+---
+include:
+- Rakefile
+- Gemfile
+- "*.gemspec"
+- "cookbooks/**/*"
+- "roles/**/*"
+- "plugins/**/*"
+- "hack/**/*"
+- "hosts/*.rb"
+- "*.rb"
+exclude:
+- ".bundle/**/*"
+- "hack/gems/**/*"
+- "misc/**/*"
+- "plugins/mitamae-plugin-resource-cron/**/*"
+- "spec/**/*"
+- "test/**/*"
+- "vendor/**/*"
+require: []
+domains: []
+reporters:
+- rubocop
+- require_not_found
+- typecheck
+formatter:
+  rubocop:
+    cops: safe
+    except: []
+    only: []
+    extra_args: []
+require_paths: []
+plugins: []
+max_files: 5000

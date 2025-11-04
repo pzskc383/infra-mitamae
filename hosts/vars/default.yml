@@ -1,0 +1,59 @@
+default_domain: pzskc383.net
+main_email_address: maniac@pzskc383.net
+# @encrypt
+tsig_secret: 6E6XKNd/47pGEh14Hp5cuKJf7IHUBs1YYLIPmHGnoDk=
+main_zone_ksk:
+  # @encrypt
+  priv: |-
+    Private-key-format: v1.2
+    Algorithm: 13 (ECDSAP256SHA256)
+    PrivateKey: I/wp9ADSr7zrK0N4PPndqcUw0iGTUF/BLRt+q4z3Iiw=
+  pub: pzskc383.net.   IN      DNSKEY  257 3 13 I/lTG3+/Ve9eMwaKeyb+3/GPhMvHZznvmw1HxfK5TZ9rimASxTXjIjX4Tfy/xAvsRjogcTlktCAoyb1YmPtCbg== ;{id = 41930 (ksk), size = 256b}
+# @encrypt
+hub:
+  dns_shortname: x1
+  v4: 88.99.194.126
+  v6: 2a01:4f8:221:21e9::128
+mail_domains:
+  pzskc383.net:
+    servers:
+      - airstrip1
+      - b0rsch
+    main_account: maniac@pzskc383.net
+    accounts:
+      - username: maniac@pzskc383.net
+        password: '{{ lookup(''ansible.builtin.pipe'', ''pass maniac@pzskc383-email'') }}'
+  pzskc383.dp.ua:
+    main_account: maniac@pzskc383.net
+    servers:
+      - airstrip1
+      - b0rsch
+lego_certs:
+  - name: wild_net
+    domains:
+      - pzskc383.net
+      - '*.pzskc383.net'
+    zone: pzskc383.net
+    cert_path: /etc/ssl/pzskc383.net.crt
+    key_path: /etc/ssl/pzskc383.net.key
+  - name: wild_dpua
+    domains:
+      - pzskc383.dp.ua
+      - '*.pzskc383.dp.ua'
+    zone: pzskc383.dp.ua
+    cert_path: /etc/ssl/pzskc383.dp.ua.crt
+    key_path: /etc/ssl/pzskc383.dp.ua.key
+knot_zones:
+  pzskc383.net:
+    servers:
+      - airstrip1
+      - b0rsch
+    ksk_priv: '{{ main_zone_ksk.priv }}'
+    ksk_pub: '{{ main_zone_ksk.pub }}'
+    extra_records:
+      - '{{ hub.dns_shortname }} IN A {{ hub.v4 }}'
+      - '{{ hub.dns_shortname }} IN AAAA {{ hub.v6 }}'
+  pzskc383.dp.ua:
+    servers:
+      - airstrip1
+      - b0rsch
