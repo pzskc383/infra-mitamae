@@ -5,7 +5,7 @@ openbsd_package "vim" do
   flavor "no_x11"
 end
 
-openbsd_package 'nnn' do
+openbsd_package "nnn" do
   action :install
   # flavor "nerd"
 end
