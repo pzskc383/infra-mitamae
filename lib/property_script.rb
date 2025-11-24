@@ -5,9 +5,9 @@
 require "yaml"
 require "open3"
 
-default_vars = YAML.load_file("./vars/default.yml")
+default_vars = YAML.load_file("./data/vars/default.yml")
 
-sops_stdout, sops_status = Open3.capture2("sops", "-d", "./vars/secrets.sops.yml")
+sops_stdout, sops_status = Open3.capture2("sops", "-d", "./data/vars/secrets.sops.yml")
 raise "Failed to decrypt secrets.sops.yml: #{sops_status}" unless sops_status.success?
 default_secret_vars = YAML.load(sops_stdout)
 

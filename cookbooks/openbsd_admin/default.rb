@@ -32,6 +32,23 @@ end
 file "/root/.profile" do
   action :edit
   block do |content|
-    content
+    marker_start = "# BEGIN MITAMAE MANAGED BLOCK"
+    marker_end = "# END MITAMAE MANAGED BLOCK"
+
+    new_block = <<~'SHELL'
+      case "$SHELL" in
+      *ksh)
+          ENV=$HOME/.kshrc
+          export ENV
+          ;;
+      esac
+    SHELL
+
+    # Remove existing managed block if present
+    content.gsub!(/#{Regexp.escape(marker_start)}.*?#{Regexp.escape(marker_end)}\n?/m, '')
+
+    # Append new block
+    content << "\n#{marker_start}\n#{new_block}#{marker_end}\n"
   end
 end
+

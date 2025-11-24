@@ -1,6 +1,6 @@
 inventory_providers:
   - sops_file:
-      path: ./hosts
+      path: ./data/hosts
 
 property_providers:
   - add_default:
