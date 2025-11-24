@@ -1,12 +1,17 @@
-# cron 'echo hi'
-
 openbsd_package "vim" do
   action :install
   flavor "no_x11"
-  # version "9.1.1706"
 end
 
-openbsd_package "nnn" do
-  action :install
-  # flavor "nerd"
+Dir.glob("cookbooks/openbsd_server/files/**/*.*").map do |fn|
+  fn.sub("cookbooks/openbsd_server/files", "")
+end.each do |fn|
+  remote_file fn do
+    action :create
+    source :auto
+  end
+end
+
+template "/etc/hostname.vio0" do
+  source :auto
 end

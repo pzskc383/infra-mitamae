@@ -2,7 +2,8 @@ ruby "~> 3.4"
 
 source "https://rubygems.org"
 
-gem "hocho", path: "hack/gems/hocho"
+# gem "hocho", path: "hack/gems/hocho"
+gem "hocho"
 
 gem "bcrypt_pbkdf"
 gem "ed25519"

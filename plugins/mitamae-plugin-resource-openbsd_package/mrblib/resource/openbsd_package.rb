@@ -1,5 +1,3 @@
-puts "puts from openbsd_package/resource.rb"
-
 module ::MItamae
   module Plugin
     module Resource

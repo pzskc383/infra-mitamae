@@ -1,5 +1,3 @@
-puts "puts from openbsd_package/resource_executor.rb"
-
 module ::MItamae
   module Plugin
     module ResourceExecutor

@@ -2,9 +2,6 @@
 	path = plugins/mitamae-plugin-resource-cron
 	url = https://github.com/itamae-plugins/mitamae-plugin-resource-cron
 
-[submodule "hocho"]
-	path = hack/gems/hocho
-	url = https://github.com/sorah/hocho
 [submodule "mitamae"]
 	path = misc/mitamae
 	url = https://github.com/itamae-kitchen/mitamae
