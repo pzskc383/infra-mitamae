@@ -15,14 +15,12 @@ AllCops:
   - "cookbooks/**/*"
   - "plugins/**/*"
   - "lib/**/*"
-  - "*.rb"
   - "bin/hocho"
   Exclude:
   - "bin/**/*"
   - "cookbooks/*/files/**/*"
   - "cookbooks/*/templates/**/*"
   - ".bundle/**/*"
-  - "hack/gems/**/*"
   - "misc/**/*"
   - "plugins/mitamae-plugin-resource-cron/**/*"
   - "spec/**/*"
@@ -58,8 +56,3 @@ Style/StringLiterals:
 
 Style/FormatStringToken:
   Enabled: false
-
-# Naming/FileName:
-#   Exclude:
-#     - Gemfile
-#     - Rakefile

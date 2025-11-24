@@ -11,9 +11,6 @@ property_providers:
         ssh_options:
           user: root
 
-  - ruby_script:
-      file: lib/property_script.rb
-
 driver_options:
   mitamae:
     mitamae_path: /usr/local/bin/mitamae

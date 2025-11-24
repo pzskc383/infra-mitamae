@@ -1,22 +1,23 @@
 require "yaml"
 require "open3"
 
-require "hocho/inventory_providers/base"
-require "hocho/host"
-require "hocho/utils/symbolize"
-
-module ::Hocho
+module Hocho
   module InventoryProviders
     class YamlDir < Base
+      VARS_DIR           = ::File.expand_path("../../vars", __dir__)
+      DEFAULT_VARS_FILE  = File.join(VARS_DIR, "default.yml")
+      SECRETS_SOPS_FILE  = File.join(VARS_DIR, "secrets.sops.yml")
+
       def initialize(path:)
-        @path = path
-        super
+        @path         = path
+        @global_attrs = load_global_vars!
+        super()
       end
 
       attr_reader :path
 
       def host_dirs
-        Dir[::File.join(path, "/*/")]
+        Dir[File.join(@path, "/*/")]
       end
 
       def deep_merge(hash1, hash2)
@@ -34,8 +35,11 @@ module ::Hocho
           loaded_hosts = host_dirs.to_h do |dir|
             name = File.basename(dir)
 
-            host_files = Dir[::File.join(dir, "/**/*.yml")].sort_by do |fn|
-              [!fn.include?("default.yml"), fn.include?(".sops.yml")].join("-")
+            host_files = Dir[File.join(dir, "/**/*.yml")].sort_by do |fn|
+              # 1) non‑default files first,
+              # 2) sops files next,
+              # 3) finally alphabetical
+              [!fn.include?("default.yml"), fn.include?(".sops.yml"), fn].join("-")
             end
 
             value = host_files.map { |f| load_file(f) }.reduce({}) { |a, p| deep_merge(a, p) }
@@ -43,10 +47,17 @@ module ::Hocho
             [name, value]
           end
 
+          hosts_data(loaded_hosts)
+
           loaded_hosts.map do |name, value|
             properties = value[:properties] || {}
-            properties[:attributes] ||= {}
-            properties[:attributes][:hosts] = hosts_data(loaded_hosts)
+            attributes = properties.fetch(:attributes, {})
+            attributes ||= {}
+
+            attributes.merge!(@global_attrs)
+            properties[:attributes] = attributes
+
+            properties[:attributes][:hosts]      = hosts
             properties[:attributes][:hocho_host] = name
 
             Host.new(
@@ -64,7 +75,7 @@ module ::Hocho
         data =
           if filename.include?(".sops.yml")
             stdout, status = Open3.capture2("sops", "-d", filename)
-            raise "SOPS decryption error" unless status.success?
+            raise "SOPS decryption error for #{filename}" unless status.success?
 
             YAML.safe_load(stdout).except(:sops)
           else
@@ -76,9 +87,11 @@ module ::Hocho
 
       def hosts_data(loaded_hosts)
         data = {}
+
         loaded_hosts.each do |name, value|
-          attrs = value.dig(:properties, :attributes) || {}
-          net = attrs[:network_setup] || {}
+          attrs  = value.dig(:properties, :attributes) || {}
+          net    = attrs[:network_setup] || {}
+
           data[name] = {
             dns_shortname: attrs[:dns_shortname],
             v4: net.dig(:v4, :address),
@@ -86,7 +99,11 @@ module ::Hocho
           }
         end
 
-        ex1t_data = loaded_hosts.values.first.dig(:properties, :attributes, :hub)
+        first_attrs = loaded_hosts.values.first.dig(
+          :properties,
+          :attributes
+        ) || {}
+        ex1t_data = first_attrs[:hub]
         data["ex1t"] = {
           dns_shortname: ex1t_data[:dns_shortname],
           v4: ex1t_data[:v4],
@@ -94,6 +111,25 @@ module ::Hocho
         }
 
         data
+      end
+
+      private
+
+      def load_global_vars!
+        default_vars = YAML.load_file(DEFAULT_VARS_FILE)
+
+        sops_stdout, sops_status = Open3.capture2("sops", "-d", SECRETS_SOPS_FILE)
+        raise "Failed to decrypt #{SECRETS_SOPS_FILE}: #{sops_status}" unless sops_status.success?
+
+        secret_vars = YAML.safe_load(sops_stdout)
+
+        attrs = {}
+        attrs.merge!(default_vars) if default_vars.is_a?(Hash)
+        attrs.merge!(secret_vars)  if secret_vars.is_a?(Hash)
+
+        # attrs[:sudo_command] = host.properties[:sudo_command] if host.properties[:sudo_command]
+
+        attrs
       end
     end
   end
