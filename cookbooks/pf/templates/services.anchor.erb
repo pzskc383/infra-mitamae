@@ -1,4 +1,4 @@
-<% @pf_snippets.each do |snippet| -%>
+<% (node[:pf_snippets] || []).each do |snippet| -%>
 <%= snippet %>
 <% end -%>
 

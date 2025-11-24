@@ -10,7 +10,7 @@ module ::MItamae
           )-
           (?<version>
             [0-9.]+
-            ((rc|alpha|beta|pre|pl|p)[0-9]+)?
+            (?:(?:rc|alpha|beta|pre|pl|p)[0-9]+)?
           )
           (?<flavor>
             [a-z0-9_-]+

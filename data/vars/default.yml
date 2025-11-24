@@ -1,7 +1,3 @@
-default_domain: pzskc383.net
-main_email_address: maniac@pzskc383.net
-main_zone_ksk:
-  pub: pzskc383.net.   IN      DNSKEY  257 3 13 I/lTG3+/Ve9eMwaKeyb+3/GPhMvHZznvmw1HxfK5TZ9rimASxTXjIjX4Tfy/xAvsRjogcTlktCAoyb1YmPtCbg== ;{id = 41930 (ksk), size = 256b}
 
 mail_domains:
   pzskc383.net:
@@ -9,9 +5,7 @@ mail_domains:
       - airstrip1
       - b0rsch
     main_account: maniac@pzskc383.net
-    accounts:
-      - username: maniac@pzskc383.net
-        password: '{{ lookup(''ansible.builtin.pipe'', ''pass maniac@pzskc383-email'') }}'
+
   pzskc383.dp.ua:
     main_account: maniac@pzskc383.net
     servers:

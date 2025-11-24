@@ -30,9 +30,9 @@ block_in_file "/root/.profile" do
   EOF
 end
 
-sshd_param "Port" do value "38322"; end
-sshd_param "PermitRootLogin" do value "prohibit-password"; end
-sshd_param "PasswordAuthentication" do value "no"; end
+sshd_param("Port") { value "38322" }
+sshd_param("PermitRootLogin") { value "prohibit-password" }
+sshd_param("PasswordAuthentication") { value "no" }
 
 pf_snippet "sshd" do
   content "pass proto tcp to port 38322"

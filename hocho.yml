@@ -1,5 +1,5 @@
 inventory_providers:
-  - sops_file:
+  - yaml_dir:
       path: ./data/hosts
 
 property_providers:

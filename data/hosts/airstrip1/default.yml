@@ -1,0 +1,6 @@
+properties:
+  run_list:
+    - cookbooks/openbsd_com0/default.rb
+    - cookbooks/openbsd_server/default.rb
+  attributes:
+    dns_shortname: a1

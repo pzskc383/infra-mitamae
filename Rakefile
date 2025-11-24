@@ -1,7 +1,7 @@
 require "bundler/setup"
 require "hocho"
 
-SOPS_FILES = [*Dir["./vars/*.sops.yml"], *Dir["./hosts/*.sops.yml"]].freeze
+SOPS_FILES = [*Dir["./data/**/*.sops.yml"]].freeze
 
 namespace :sops do
   desc "Decrypt secrets using SOPS"

@@ -10,5 +10,3 @@ module KnotHelpers
 end
 
 MItamae::RecipeContext.include(KnotHelpers)
-
-# TODO: Add knot DNS configuration resources

@@ -91,5 +91,5 @@ template "/etc/pf/services.anchor" do
   mode "0640"
   owner "root"
   group "wheel"
-  variables(pf_snippets: node[:pf_snippets] || [])
+  # variables(node: node)
 end

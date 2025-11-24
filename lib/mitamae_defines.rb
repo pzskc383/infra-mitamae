@@ -44,18 +44,12 @@ define :pf_snippet, content: nil do
   node[:pf_snippets] ||= []
   node[:pf_snippets] << params[:content]
 
-  local_ruby_block "register pf snippet #{params[:name]}" do
-    block {}
-    notifies :create, "template[/etc/pf/services.local.anchor]"
-  end
-end
+  unless node[:_pf_snippet_notifier]
+    node[:_pf_snippet_notifier] = true
 
-define :syslog_snippet, content: nil do
-  node[:syslog_snippets] ||= []
-  node[:syslog_snippets] << params[:content]
-
-  local_ruby_block "register syslog snippet #{params[:name]}" do
-    block {}
-    notifies :create, "template[/etc/syslog.conf]"
+    local_ruby_block "pf snippets collector" do
+      block {}
+      notifies :create, "template[/etc/pf/services.anchor]"
+    end
   end
 end
