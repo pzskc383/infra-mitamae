@@ -26,3 +26,4 @@ driver_options:
 
 initializers:
   - lib/mitamae_ext.rb
+  - lib/mitamae_defines.rb

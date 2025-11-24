@@ -15,3 +15,9 @@ end
 template "/etc/hostname.vio0" do
   source :auto
 end
+
+file "/etc/resolv.conf" do
+  mode "0644"
+  user "root"
+  group "wheel"
+end
