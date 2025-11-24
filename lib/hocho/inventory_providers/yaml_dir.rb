@@ -30,46 +30,70 @@ module ::Hocho
       end
 
       def hosts
-        @hosts ||= host_dirs.flat_map do |dir|
-          name = File.basename(dir)
+        @hosts ||= begin
+          loaded_hosts = host_dirs.to_h do |dir|
+            name = File.basename(dir)
 
-          host_files = Dir[::File.join(dir, "/**/*.yml")].sort_by do |fn|
-            [!fn.include?("default.yml"), fn.include?(".sops.yml")].join("-")
-          end
-
-          values = host_files.map do |f|
-            if f.include?(".sops.yml")
-              load_sops_yaml(f)
-            else
-              load_plain_yaml(f)
+            host_files = Dir[::File.join(dir, "/**/*.yml")].sort_by do |fn|
+              [!fn.include?("default.yml"), fn.include?(".sops.yml")].join("-")
             end
+
+            value = host_files.map { |f| load_file(f) }.reduce({}) { |a, p| deep_merge(a, p) }
+
+            [name, value]
           end
 
-          value = values.reduce({}) { |a, p| deep_merge(a, p) }
+          loaded_hosts.map do |name, value|
+            properties = value[:properties] || {}
+            properties[:attributes] ||= {}
+            properties[:attributes][:hosts] = hosts_data(loaded_hosts)
+            properties[:attributes][:hocho_host] = name
 
-          properties = value[:properties] || {}
-
-          Host.new(
-            name.to_s,
-            providers: self.class,
-            properties: properties,
-            tags: value[:tags] || {},
-            ssh_options: value[:ssh_options]
-          )
+            Host.new(
+              name.to_s,
+              providers: self.class,
+              properties: properties,
+              tags: value[:tags] || {},
+              ssh_options: value[:ssh_options]
+            )
+          end
         end
       end
 
-      def load_sops_yaml(file)
-        stdout, status = Open3.capture2("sops", "-d", file)
-        raise "SOPS decryption error" unless status.success?
+      def load_file(filename)
+        data =
+          if filename.include?(".sops.yml")
+            stdout, status = Open3.capture2("sops", "-d", filename)
+            raise "SOPS decryption error" unless status.success?
 
-        content = Hocho::Utils::Symbolize.keys_of(YAML.safe_load(stdout))
+            YAML.safe_load(stdout).except(:sops)
+          else
+            YAML.load_file(filename)
+          end
 
-        content.except(:sops)
+        Hocho::Utils::Symbolize.keys_of(data)
       end
 
-      def load_plain_yaml(file)
-        Hocho::Utils::Symbolize.keys_of(YAML.load_file(file))
+      def hosts_data(loaded_hosts)
+        data = {}
+        loaded_hosts.each do |name, value|
+          attrs = value.dig(:properties, :attributes) || {}
+          net = attrs[:network_setup] || {}
+          data[name] = {
+            dns_shortname: attrs[:dns_shortname],
+            v4: net.dig(:v4, :address),
+            v6: net.dig(:v6, :address)
+          }
+        end
+
+        ex1t_data = loaded_hosts.values.first.dig(:properties, :attributes, :hub)
+        data["ex1t"] = {
+          dns_shortname: ex1t_data[:dns_shortname],
+          v4: ex1t_data[:v4],
+          v6: ex1t_data[:v6]
+        }
+
+        data
       end
     end
   end

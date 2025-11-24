@@ -1,6 +1,10 @@
 properties:
   run_list:
-    - cookbooks/openbsd_com0/default.rb
     - cookbooks/openbsd_server/default.rb
+    - cookbooks/openbsd_com0/default.rb
+    - cookbooks/openbsd_admin/default.rb
+    - cookbooks/pf/default.rb
+    - cookbooks/dickd/default.rb
+    - cookbooks/knot/default.rb
   attributes:
     dns_shortname: a1

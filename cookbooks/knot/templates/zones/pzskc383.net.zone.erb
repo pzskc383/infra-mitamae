@@ -1,0 +1,37 @@
+$ORIGIN pzskc383.net.
+$TTL 15m
+
+; SOA - serial managed by Knot (dateserial policy)
+@ IN SOA a1 hostmaster ( 1 4h 1h 2w 1h )
+
+; NS records
+@ IN NS a1
+@ IN NS b0
+
+@ IN DNSKEY 257 3 13 OyeNfEWxXU7zgF1Quvr5Nia8j75jZhS602/7dJwShLb+lps4peuEFH0IIj4Nnl9rKdP7B6swOakd1Q+LGglNQw== ;{id = 383 (ksk), size = 256b}
+@ IN NSEC3PARAM 1 0 0 -
+
+; CAA
+@ IN CAA 128 issue "letsencrypt.org;validationmethods=dns-01"
+@ IN CAA 128 issuewild "letsencrypt.org;validationmethods=dns-01"
+@ IN CAA 128 iodef "mailto:abuse+caa@pzskc383.net"
+
+; Host A/AAAA records
+<% @hosts.each do |hostname, data| -%>
+<%= data[:dns_shortname] %> IN A <%= data[:v4] %>
+<%= data[:dns_shortname] %> IN AAAA <%= data[:v6] %>
+<% end -%>
+
+; Apex points to web primary (a1)
+@ IN A <%= @hosts["airstrip1"][:v4] %>
+@ IN AAAA <%= @hosts["airstrip1"][:v6] %>
+
+; CNAMEs for inventory hostnames
+<% @hosts.each do |hostname, data| -%>
+<%= hostname %> IN CNAME <%= data[:dns_shortname] %>
+<% end -%>
+
+; Disabled services
+_imaps._tcp IN SRV 0 0 0 .
+_pop3._tcp IN SRV 0 0 0 .
+_pop3s._tcp IN SRV 0 0 0 .

@@ -1,0 +1,29 @@
+$ORIGIN pzskc383.net.
+$TTL 15m
+
+@ IN SOA a.ns root ( 1 4h 1h 2w 1h )
+
+@ IN NS a.ns
+@ IN NS b.ns
+
+a.ns IN A <%= @hosts["f0rk"][:v4] %>
+b.ns IN A <%= @hosts["aistrip1"][:v4] %>
+
+@ IN NSEC3PARAM 1 0 0 -
+
+@ IN CAA 128 issue "letsencrypt.org;validationmethods=dns-01"
+@ IN CAA 128 issuewild "letsencrypt.org;validationmethods=dns-01"
+
+@ IN MX 0 .
+
+@ IN A <%= @hosts["f0rk"][:v4] %>
+@ IN AAAA <%= @hosts["f0rk"][:v6] %>
+
+<% @hosts.each do |hostname, data| -%>
+<%= data[:dns_shortname] %> IN A <%= data[:v4] %>
+<%= data[:dns_shortname] %> IN AAAA <%= data[:v6] %>
+<% end -%>
+
+<% @hosts.each do |hostname, data| -%>
+<%= hostname %> IN CNAME <%= data[:dns_shortname] %>
+<% end -%>

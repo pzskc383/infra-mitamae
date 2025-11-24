@@ -30,10 +30,14 @@ lego_certs:
 
 knot_zones:
   pzskc383.net:
-    servers:
-      - airstrip1
+    primary: airstrip1
+    secondaries:
       - b0rsch
   pzskc383.dp.ua:
-    servers:
-      - airstrip1
+    primary: airstrip1
+    secondaries:
       - b0rsch
+  b0x.pw:
+    primary: f0rk
+    secondaries:
+      - airstrip1

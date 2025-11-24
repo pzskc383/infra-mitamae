@@ -1,0 +1,94 @@
+server:
+    rundir: "/var/run/knot"
+    user: _knot:_knot
+    automatic-acl: on
+    listen: 127.0.0.1@17053
+    listen: ::1@17053
+    identity: ""
+    version: ""
+    nsid: ""
+
+log:
+  - target: syslog
+    any: info
+  - target: /var/log/knot/debug.log
+    zone: debug
+
+database:
+    storage: "/var/db/knot"
+
+key:
+  - id: tsig-default
+    algorithm: hmac-sha256
+    secret: <%= @knot_tsig_secret %>
+
+remote:
+<% @hosts.each do |hostname, host_data| -%>
+<% next if hostname == @current_host -%>
+  - id: <%= hostname %>
+    address: <%= host_data[:v4] %>
+    address: <%= host_data[:v6] %>
+    key: tsig-default
+<% end -%>
+
+acl:
+  - id: local_nsupdate
+    address: [127.0.0.1, ::1]
+    action: update
+    update-type: [TXT]
+    update-owner: name
+    update-owner-match: equal
+    update-owner-name: [ _acme_challenge ]
+
+policy:
+  - id: sane
+    reproducible-signing: on
+    cds-cdnskey-publish: rollover
+    algorithm: ecdsap256sha256
+    ksk-size: 256
+    zsk-size: 256
+    nsec3: on
+    nsec3-iterations: 0
+    nsec3-salt-length: 0
+    signing-threads: 1
+    zsk-lifetime: 60d
+    rrsig-lifetime: 14d
+    zone-max-ttl: 24h
+    dnskey-ttl: 24h
+
+template:
+  - id: signed
+    storage: "/var/db/knot/zones"
+    file: "%s.zone"
+    semantic-checks: on
+    serial-policy: dateserial
+    zonefile-sync: -1
+    zonefile-load: difference-no-serial
+    journal-content: all
+    dnssec-signing: on
+    dnssec-policy: sane
+    acl: local_nsupdate
+
+  - id: slave
+    storage: "/var/db/knot/zones"
+    file: "%s.zone"
+    semantic-checks: on
+    serial-policy: dateserial
+    zonefile-sync: 0
+    zonefile-load: none
+    journal-content: changes
+
+zone:
+<% @knot_zones.each do |zone_name, zone_config| -%>
+  - domain: <%= zone_name %>
+<% is_primary = zone_config[:primary] == @current_host -%>
+<% if is_primary -%>
+    template: signed
+<% zone_config[:secondaries].each do |slave| -%>
+    notify: <%= slave %>
+<% end -%>
+<% else -%>
+    template: slave
+    master: <%= zone_config[:primary] %>
+<% end -%>
+<% end -%>

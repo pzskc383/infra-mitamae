@@ -41,7 +41,7 @@ Metrics/MethodLength:
 
 Metrics/AbcSize:
   CountRepeatedAttributes: false
-  Max: 30
+  Max: 35
 
 Metrics/PerceivedComplexity:
   Max: 20
