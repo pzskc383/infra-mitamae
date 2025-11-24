@@ -20,14 +20,14 @@ remote_file "/root/.kshrc" do
 end
 
 block_in_file "/root/.profile" do
-  content <<~EOF
+  content <<~SNIPPET
     case "$SHELL" in
     *ksh)
         ENV=$HOME/.kshrc
         export ENV
         ;;
     esac
-  EOF
+  SNIPPET
 end
 
 sshd_param("Port") { value "38322" }

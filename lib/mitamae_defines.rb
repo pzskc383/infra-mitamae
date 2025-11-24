@@ -5,7 +5,7 @@ define :block_in_file, content: nil do
       marker_start = "# BEGIN MITAMAE MANAGED BLOCK"
       marker_end = "# END MITAMAE MANAGED BLOCK"
 
-      data.gsub!(/\n#{Regexp.escape(marker_start)}.*?#{Regexp.escape(marker_end)}\n?/m, "")
+      data.gsub!(%r{\n#{Regexp.escape(marker_start)}.*?#{Regexp.escape(marker_end)}\n?}m, "")
 
       data << "\n#{marker_start}\n#{params[:content]}#{marker_end}\n"
     end
@@ -14,14 +14,14 @@ end
 
 define :line_in_file, line: nil, match_rx: nil do
   match_rx = params[:match_rx]
-  match_rx ||= /#{Regexp.escape(params[:line])}/
+  match_rx ||= %r{#{Regexp.escape(params[:line])}}
 
   file params[:name] do
     action :edit
     block do |data|
-      data.gsub!(/^.*$/) do |l|
+      data.gsub!(%r{^.*$}) do |l|
         if match_rx.match?(l)
-          ::MItamae.logger.debug "Replacing #{l} with #{params[:line]}"
+          MItamae.logger.debug "Replacing #{l} with #{params[:line]}"
           params[:line]
         else
           l
@@ -40,6 +40,16 @@ define :sshd_param, value: nil do
   end
 end
 
+define :sysctl, value: nil do
+  k = params[:name]
+  v = params[:value]
+
+  line_in_file "/etc/sysctl.conf" do
+    line "#{k}=#{v}"
+    match_rx %r{^#{k}=}
+  end
+end
+
 define :pf_snippet, content: nil do
   node[:pf_snippets] ||= []
   node[:pf_snippets] << params[:content]
@@ -48,7 +58,6 @@ define :pf_snippet, content: nil do
     node[:_pf_snippet_notifier] = true
 
     local_ruby_block "pf snippets collector" do
-      block {}
       notifies :create, "template[/etc/pf/services.anchor]"
     end
   end

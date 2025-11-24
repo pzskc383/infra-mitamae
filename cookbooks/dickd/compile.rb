@@ -1,9 +1,7 @@
 dickd_bin = "/usr/local/bin/erection"
 dickd_builddir = "/tmp/dickd-build"
 
-directory dickd_builddir do
-  action :create
-end
+directory dickd_builddir
 
 %w[erection.c frames.h].each do |f|
   remote_file "#{dickd_builddir}/#{f}"

@@ -10,10 +10,8 @@ group :development do
   gem "ruby-lsp"
 
   gem "rubocop"
+  gem "rubocop-itamae"
   gem "rubocop-performance"
-  gem "rubocop-rspec"
-  gem "rubocop-thread_safety"
-
-  gem "cookstyle"
   gem "rubocop-rake"
+  gem "rubocop-thread_safety"
 end

@@ -7,7 +7,6 @@ Dir.glob("cookbooks/openbsd_server/files/**/*.*").each do |fn|
   fn.sub!("cookbooks/openbsd_server/files", "")
 
   remote_file fn do
-    action :create
     source :auto
     mode "0640"
     user "root"
@@ -15,9 +14,7 @@ Dir.glob("cookbooks/openbsd_server/files/**/*.*").each do |fn|
   end
 end
 
-template "/etc/hostname.vio0" do
-  source :auto
-end
+template "/etc/hostname.vio0"
 
 file "/etc/resolv.conf" do
   mode "0644"

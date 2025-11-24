@@ -1,7 +1,6 @@
 require "bundler/setup"
 require "hocho"
 
-require 'cookstyle'
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new(:cop) do |task|
   task.options << '--display-cop-names'

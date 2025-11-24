@@ -1,7 +1,6 @@
 file "/etc/boot.conf" do
-  action :create
-  content <<~EOF
+  content <<~SNIPPET
     stty com0 115200
     set tty com0
-  EOF
+  SNIPPET
 end

@@ -1,16 +1,33 @@
 ---
 plugins:
   - rubocop-rake
+  - rubocop-itamae
+  - rubocop-thread_safety
+  - rubocop-performance
+  
 
 AllCops:
   NewCops: enable
-  Exclude:
-    - 'misc/**/*'
-    - 'dist/**/*'
-    - 'vendor/gems/**/*'
-    - 'plugins/**/*'
   Include:
-    - 'plugins/*openbsd_package/**/*'
+  - Rakefile
+  - Gemfile
+  - "*.gemspec"
+  - "cookbooks/**/*"
+  - "plugins/**/*"
+  - "lib/**/*"
+  - "*.rb"
+  - "bin/hocho"
+  Exclude:
+  - "bin/**/*"
+  - "cookbooks/*/files/**/*"
+  - "cookbooks/*/templates/**/*"
+  - ".bundle/**/*"
+  - "hack/gems/**/*"
+  - "misc/**/*"
+  - "plugins/mitamae-plugin-resource-cron/**/*"
+  - "spec/**/*"
+  - "test/**/*"
+  - "vendor/**/*"
 
 Style/Documentation:
   Enabled: false
@@ -20,11 +37,11 @@ Style/RegexpLiteral:
 
 Metrics/MethodLength:
   CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
-  Max: 20
+  Max: 30
 
 Metrics/AbcSize:
   CountRepeatedAttributes: false
-  Max: 40
+  Max: 30
 
 Metrics/PerceivedComplexity:
   Max: 20
@@ -39,7 +56,10 @@ Style/StringLiterals:
   Enabled: false
   EnforcedStyle: single_quotes
 
-Naming/FileName:
-  Exclude:
-    - Gemfile
-    - Rakefile
+Style/FormatStringToken:
+  Enabled: false
+
+# Naming/FileName:
+#   Exclude:
+#     - Gemfile
+#     - Rakefile

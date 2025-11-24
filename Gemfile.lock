@@ -4,8 +4,6 @@ GEM
     ansi (1.5.0)
     ast (2.4.3)
     base64 (0.3.0)
-    cookstyle (8.5.2)
-      rubocop (= 1.81.6)
     hashie (5.0.0)
     hocho (0.3.8)
       hashie
@@ -37,7 +35,7 @@ GEM
     rbs (3.9.5)
       logger
     regexp_parser (2.11.3)
-    rubocop (1.81.6)
+    rubocop (1.81.7)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -51,6 +49,9 @@ GEM
     rubocop-ast (1.48.0)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
+    rubocop-itamae (0.2.0)
+      lint_roller
+      rubocop (>= 1.72.0)
     rubocop-performance (1.26.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
@@ -58,9 +59,6 @@ GEM
     rubocop-rake (0.7.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1)
-    rubocop-rspec (3.8.0)
-      lint_roller (~> 1.1)
-      rubocop (~> 1.81)
     rubocop-thread_safety (0.7.3)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -88,13 +86,12 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  cookstyle
   hocho
   rake
   rubocop
+  rubocop-itamae
   rubocop-performance
   rubocop-rake
-  rubocop-rspec
   rubocop-thread_safety
   ruby-lsp
 

@@ -12,12 +12,12 @@ end
 
 line_in_file "/etc/inetd.conf" do
   line "telnet stream tcp nowait root #{dickd_bin} erection"
-  match_rx(/^#?telnet\s+stream\s+tcp\s/)
+  match_rx(%r{^#?telnet\s+stream\s+tcp\s})
 end
 
 line_in_file "/etc/inetd.conf" do
   line "telnet stream tcp6 nowait root #{dickd_bin} erection"
-  match_rx(/^#?telnet\s+stream\s+tcp6\s/)
+  match_rx(%r{^#?telnet\s+stream\s+tcp6\s})
 end
 
 pf_snippet "dickd" do
@@ -25,6 +25,6 @@ pf_snippet "dickd" do
 end
 
 service "inetd" do
-  action [:enable, :restart]
+  action %i[enable restart]
   subscribes :edit, "file[/etc/inetd.conf]"
 end
