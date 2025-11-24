@@ -24,7 +24,4 @@ end
 require "rubygems"
 require "bundler/setup"
 
-$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
-require_relative "../lib/hocho_ext"
-
 load Gem.bin_path("hocho", "hocho")

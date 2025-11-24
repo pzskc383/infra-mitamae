@@ -10,6 +10,7 @@ module ::Hocho
     class YamlDir < Base
       def initialize(path:)
         @path = path
+        super
       end
 
       attr_reader :path
@@ -18,8 +19,8 @@ module ::Hocho
         Dir[::File.join(path, "/*/")]
       end
 
-      def deep_merge(h1, h2)
-        h1.merge(h2) do |_key, v1, v2|
+      def deep_merge(hash1, hash2)
+        hash1.merge(hash2) do |_key, v1, v2|
           if v1.is_a?(Hash) && v2.is_a?(Hash)
             deep_merge(v1, v2)
           else
@@ -36,15 +37,15 @@ module ::Hocho
             [!fn.include?("default.yml"), fn.include?(".sops.yml")].join("-")
           end
 
-          value = host_files.map do |f|
+          values = host_files.map do |f|
             if f.include?(".sops.yml")
               load_sops_yaml(f)
             else
               load_plain_yaml(f)
             end
-          end.reduce({}) do |a, p|
-            deep_merge(a, p)
           end
+
+          value = values.reduce({}) { |a, p| deep_merge(a, p) }
 
           properties = value[:properties] || {}
 

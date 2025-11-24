@@ -3,9 +3,9 @@ openbsd_package "vim" do
   flavor "no_x11"
 end
 
-Dir.glob("cookbooks/openbsd_server/files/**/*.*").map do |fn|
-  fn.sub("cookbooks/openbsd_server/files", "")
-end.each do |fn|
+Dir.glob("cookbooks/openbsd_server/files/**/*.*").each do |fn|
+  fn.sub!("cookbooks/openbsd_server/files", "")
+
   remote_file fn do
     action :create
     source :auto
@@ -26,5 +26,5 @@ file "/etc/resolv.conf" do
 end
 
 service "unbound" do
-  action [:enable, :restart]
+  action %i[enable restart]
 end

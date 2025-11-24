@@ -4,10 +4,8 @@ include:
 - Gemfile
 - "*.gemspec"
 - "cookbooks/**/*"
-- "roles/**/*"
 - "plugins/**/*"
-- "hack/**/*"
-- "hosts/*.rb"
+- "lib/**/*"
 - "*.rb"
 exclude:
 - ".bundle/**/*"

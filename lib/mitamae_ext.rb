@@ -1,4 +1,3 @@
-# Add configurable sudo command to mitamae via node[:sudo_command]
 class MItamae::Node
   alias_method :orig_initialize, :initialize
 

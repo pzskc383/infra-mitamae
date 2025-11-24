@@ -24,6 +24,13 @@ Metrics/MethodLength:
 
 Metrics/AbcSize:
   CountRepeatedAttributes: false
+  Max: 40
+
+Metrics/PerceivedComplexity:
+  Max: 20
+
+Metrics/CyclomaticComplexity:
+  Max: 20
 
 Style/FrozenStringLiteralComment:
   Enabled: false
@@ -31,3 +38,8 @@ Style/FrozenStringLiteralComment:
 Style/StringLiterals:
   Enabled: false
   EnforcedStyle: single_quotes
+
+Naming/FileName:
+  Exclude:
+    - Gemfile
+    - Rakefile
