@@ -23,3 +23,6 @@ driver_options:
     mitamae_prepare_script: |
       chmod +x /usr/local/bin/mitamae
       /usr/local/bin/mitamae version
+
+initializers:
+  - lib/mitamae_ext.rb

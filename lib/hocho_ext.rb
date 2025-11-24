@@ -15,7 +15,7 @@ module HochoOpenBSDPatches
       prepare_sudo do |sh, sudovars, sudocmd|
         log_prefix = "=> #{host.name} # "
         log_prefix_white = " " * log_prefix.size
-        puts "#{log_prefix}#{script.each_line.map { |_| "#{log_prefix_white}#{_.chomp}" }.join("\n")}"
+        puts "#{log_prefix}#{script.each_line.map { |l| "#{log_prefix_white}#{l.chomp}" }.join("\n")}"
 
         ssh_run("sh") do |c|
           set_ssh_output_hook(c)

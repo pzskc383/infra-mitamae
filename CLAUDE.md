@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a work-in-progress mitamae configuration for managing OpenBSD servers. Mitamae is an mruby-based configuration management tool (mini-Chef) that manages three OpenBSD VPS instances for DNS, mail, and web services.
+This is a mitamae configuration for managing OpenBSD servers. Mitamae is an mruby-based configuration management tool (mini-Chef) that manages three OpenBSD VPS instances for DNS, mail, and web services.
 
 **Key servers:**
 - **airstrip1** (a1): Primary server (DNS, mail, certificates, web)
@@ -16,10 +16,10 @@ This is a work-in-progress mitamae configuration for managing OpenBSD servers. M
 ### Secrets Management
 ```bash
 # Decrypt secrets before working
-rake secrets:decrypt
+rake sops:decrypt
 
 # Re-encrypt secrets after editing
-rake secrets:encrypt
+rake sops:encrypt
 ```
 
 ### Deployment
@@ -57,41 +57,67 @@ While mitamae looks like Chef, **it is NOT Chef**. Refer to `misc/mitamae/mrblib
 
 ```
 /
-├── site.rb                        # Entry point, loads hack/mitamae_fix.rb
 ├── hocho.yml                      # Hocho configuration
-├── hosts/                         # Per-host YAML configs
-│   ├── a1.yml                     # airstrip1 config
-│   ├── b0.yml                     # b0rsch config
-│   ├── f0.yml                     # f0rk config
-│   └── vars/default.yml           # Global variables
+├── Rakefile                       # SOPS encryption/decryption tasks
+├── .sops.yaml                     # SOPS encryption configuration
+├── data/                          # Host definitions and variables
+│   ├── hosts/                     # Per-host SOPS-encrypted configs
+│   │   ├── a1.sops.yml            # airstrip1 config
+│   │   ├── b0.sops.yml            # b0rsch config
+│   │   └── f0.sops.yml            # f0rk config
+│   └── vars/
+│       ├── default.yml            # Global variables
+│       └── secrets.sops.yml       # Encrypted secrets
 ├── cookbooks/                     # Mitamae recipes
-│   └── openbsd_server/default.rb  # Main server recipe
+│   ├── openbsd_server/            # Main server config (vim, network, DNS)
+│   ├── openbsd_admin/             # Admin tools (git, zsh, doas, tmux)
+│   └── openbsd_com0/              # Serial console configuration
 ├── plugins/                       # Custom mitamae plugins
-│   └── mitamae-plugin-resource-openbsd_package/
-│       └── mrblib/                # Plugin implementation
-├── hack/                          # Monkey patches and vendored code
-│   ├── mitamae_fix.rb             # Patches mitamae core classes
-│   └── gems/hocho/                # Vendored hocho gem
-└── misc/                          # Reference materials
-    └── mitamae/mrblib/mitamae/    # Mitamae source code for reference
+│   ├── mitamae-plugin-resource-openbsd_package/
+│   └── mitamae-plugin-resource-cron/  # Git submodule
+├── lib/                           # Custom extensions
+│   ├── mitamae_ext.rb             # Adds --sudo-command to mitamae
+│   ├── hocho_ext.rb               # OpenBSD compatibility (doas, sh)
+│   ├── property_script.rb         # Variable/secrets loading
+│   └── hocho/inventory_providers/
+│       └── sops_file.rb           # SOPS-encrypted inventory provider
+├── dist/                          # Pre-compiled mitamae binaries
+│   ├── mitamae-arm64-openbsd
+│   └── mitamae-x86_64-openbsd
+└── misc/                          # Reference materials (git submodules)
+    ├── mitamae/                   # Mitamae source
+    ├── sorah-cnw/                 # Example configs
+    └── example-ruby-*/            # Ruby infra examples
 ```
 
 ### Hocho Integration
 
-**Hocho** is a mitamae wrapper for multi-host orchestration. Vendored at `hack/gems/hocho/`.
+**Hocho** is a mitamae wrapper for multi-host orchestration.
 
 Key files:
 - `hocho.yml`: Defines inventory providers, property providers, and driver options
-- `hosts/*.yml`: Host-specific configurations with attributes and run_list
-- `hosts/vars/default.yml`: Global variables injected via `property_providers.ruby_script`
+- `data/hosts/*.sops.yml`: SOPS-encrypted host configurations with run_list
+- `data/vars/default.yml`: Global variables (domain, DNS, mail config)
+- `data/vars/secrets.sops.yml`: Encrypted secrets
+
+Custom extensions in `lib/`:
+- **`mitamae_ext.rb`**: Adds `--sudo-command` CLI option to mitamae for configurable privilege escalation
+- **`hocho_ext.rb`**: Patches hocho for OpenBSD compatibility
+  - Uses `sh` instead of `bash`
+  - Passes `sudo_command` from host properties to mitamae
+  - Password-based privilege escalation via openssl/askpass
+- **`property_script.rb`**: Loads `default.yml` and decrypts `secrets.sops.yml` into host attributes
+- **`sops_file.rb`**: Custom inventory provider that decrypts SOPS host files
 
 Configuration flow:
 1. Hocho reads `hocho.yml` configuration
-2. Loads host inventory from `hosts/` directory (file inventory provider)
-3. Applies property providers (`add_default` and `ruby_script`)
-4. Executes mitamae driver with specified options
+2. Loads host inventory via `sops_file` provider (decrypts SOPS YAML)
+3. Applies property providers to inject variables and secrets
+4. Executes mitamae driver with doas support
 
-### Custom OpenBSD Package Plugin
+### Custom Plugins
+
+#### openbsd_package
 
 `plugins/mitamae-plugin-resource-openbsd_package/` provides `openbsd_package` resource:
 
@@ -111,6 +137,24 @@ openbsd_package "vim" do
   flavor "no_x11"
 end
 ```
+
+#### cron
+
+`plugins/mitamae-plugin-resource-cron/` (git submodule from itamae-plugins):
+
+**Attributes**: `minute`, `hour`, `day`, `month`, `weekday`, `command`, `user`, `mailto`, `path`, `shell`, `home`, `time`, `environment`
+
+**Actions**: `:create`, `:delete`
+
+Usage example:
+```ruby
+cron "backup_job" do
+  hour "2"
+  minute "0"
+  command "/usr/local/bin/backup.sh"
+end
+```
+
+### Reference Materials
 - Mitamae source: `misc/mitamae/mrblib/mitamae/`
-- Hocho source: `hack/gems/hocho/lib/hocho/`
-- Example repository: `misc/sorah-cnw/itamae/`
+- Example configs: `misc/sorah-cnw/`

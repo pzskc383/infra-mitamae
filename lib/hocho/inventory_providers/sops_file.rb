@@ -27,10 +27,6 @@ module ::Hocho
 
           content.reject { |name, _| name == :sops }.map do |name, value|
             properties = value[:properties] || {}
-            # Prepend openbsd_patches to run_list for all hosts
-            if properties[:run_list]
-              properties[:run_list] = ["cookbooks/openbsd_patches/default.rb"] + properties[:run_list]
-            end
 
             Host.new(
               name.to_s,

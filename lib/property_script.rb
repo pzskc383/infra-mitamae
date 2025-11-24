@@ -15,3 +15,4 @@ default_secret_vars = YAML.load(sops_stdout)
 host.properties[:attributes] ||= {}
 host.properties[:attributes].merge!(default_vars)
 host.properties[:attributes].merge!(default_secret_vars)
+host.properties[:attributes][:sudo_command] = host.properties[:sudo_command] if host.properties[:sudo_command]
