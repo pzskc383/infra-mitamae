@@ -1,0 +1,19 @@
+logblock = "log(user,matches)" # "log" or ""
+
+anchor "default" {
+    block drop in $logblock all
+    pass out
+}
+
+anchor "in-quick-bad" in {
+    block drop $logblock quick inet proto icmp all icmp-type redir
+    block drop $logblock quick inet6 proto icmp6 all icmp6-type redir
+    block drop $logblock quick from { <martians> no-route urpf-failed <banned> }
+}
+
+anchor "out-quick-bad" out {
+    block return $logblock quick to { <martians> no-route }
+    block return $logblock quick inet from ! (egress)
+}
+
+# vim: ft=pf

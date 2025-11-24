@@ -6,6 +6,8 @@ f0rk:
     run_list:
       - ENC[AES256_GCM,data:3g2jnOtgzA46WQD7DOKFsjD/24hTw0LyqFuDXpVAEJorZR4=,iv:257nTaypmuh9CmunzmZx+YTf7Fj0GHiqVgfOO4jEqNU=,tag:3gIrX7n+8Bm5yS2eX91Jhw==,type:str]
       - ENC[AES256_GCM,data:SvS0Zah6dIWokD+jleIvMViL31chHQuekXPYhvKMdnzIWw==,iv:zuGrlXjOzJK6IgCEI5ztyyk4oQwtPrbAld46fj3bYns=,tag:MEGfw1TZs04guNW3zYhFJg==,type:str]
+      - ENC[AES256_GCM,data:9mLmXUafmP68bALczk4VNTRyZl0R0go=,iv:pXp17cqrQ/9JzrdZbTRShQ5+uroqz/mjd7KaE0B37qA=,tag:RVZJ6p7rNW0gOfNuBKm7WQ==,type:str]
+      - ENC[AES256_GCM,data:IWHH0M/FyKSVp6HiFETnSDHBPYeqwMKhJw==,iv:jjInt0aZK+UwiL4Ac4Wi4sbT/XmXIThhCoahk3sRMvw=,tag:Cc+k56c0sS+p/ALpaED+Ww==,type:str]
     attributes:
       dns_shortname: ENC[AES256_GCM,data:7tI=,iv:R+UnDLWWlujZxR9PYcbJEM3n+C3QPxEutdbR73f7R8k=,tag:wmeaCc/4eiWlvZC1zMzp6Q==,type:str]
       network_setup:
@@ -23,8 +25,8 @@ f0rk:
             - ENC[AES256_GCM,data:d2eiKeOjzreXThMORBNGtUhKrQ==,iv:pNLL10GxuVR4z8M1FSVMEmqkipegOZ/ZWH9bxdstCTI=,tag:afDGqMcQK2/JfTUZuAykPA==,type:str]
             - ENC[AES256_GCM,data:LbNoN7kZEbrlWzZ+8ti6rFSiVDU=,iv:ZcQyCmYMj8d+dsuoeDyDC9QTAuzUkXfC6WwLXSfmR60=,tag:ybNrD509JdoFvu2hPtPUnw==,type:str]
 sops:
-  lastmodified: "2025-11-23T22:01:35Z"
-  mac: ENC[AES256_GCM,data:+v7ybyJDFp7Ke4WQpkWxo8AkN5kGccCbTcqf5onLN7QC7YFTH4+/nZt6JjWkz1CcyAkxEfaMHFdcPZUONg7iJu0YacIxJn8OO1f/FNjjYVIvBHbt3p7b1pAysLJJT9rWdtEJkwHV938YLkmbrnP0G74SMZrbxlwTdRJxgfElSE0=,iv:kGc4baAKjD0xiImbj8H16kyFBaoyKLyGGhdAw7Dolwo=,tag:7X/PvoF8pGATM80DQa9y1A==,type:str]
+  lastmodified: "2025-11-24T05:23:57Z"
+  mac: ENC[AES256_GCM,data:0KdZLQmuM+ZWhySHEUTzMB8bwO334XB/1EqrJeEpPjjWRycAxJ1Oy3X1WoazFV6t7M5/JKtbPx0Dvh23gB22SfFsgM1jj0kFkUxU3VLKXtPhaZ6Q4eXQgHYCKzSZHvZ3IrI7wRuEx06nmTXBG8BcEaXwNppwcQ8JU1k5FF1rd/8=,iv:Nf3eS8q+tk+1oSSPuq+DK/3h5RnpwGdCwvwPZE89Hjk=,tag:4ct8LMrNPJXG50HikNrXhQ==,type:str]
   pgp:
     - created_at: "2025-11-23T17:41:26Z"
       enc: |-

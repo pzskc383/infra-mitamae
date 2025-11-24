@@ -1,0 +1,9 @@
+pass proto { tcp udp } to port domain user _unbound
+pass proto udp to port ntp user _ntp
+pass proto tcp to port https user _ntp
+pass proto udp from port bootpc to port bootps
+
+pass proto tcp to port { ftp http https } group { _pfetch _pkgfetch _syspatch }
+pass proto tcp to port smtp user { _smtpd _spamd }
+
+# vim: ft=pf

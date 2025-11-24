@@ -9,6 +9,9 @@ end.each do |fn|
   remote_file fn do
     action :create
     source :auto
+    mode "0640"
+    user "root"
+    group "wheel"
   end
 end
 
@@ -20,4 +23,8 @@ file "/etc/resolv.conf" do
   mode "0644"
   user "root"
   group "wheel"
+end
+
+service "unbound" do
+  action [:enable, :restart]
 end

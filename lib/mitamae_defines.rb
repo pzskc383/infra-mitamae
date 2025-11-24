@@ -30,3 +30,32 @@ define :line_in_file, line: nil, match_rx: nil do
     end
   end
 end
+
+define :sshd_param, value: nil do
+  k = params[:name]
+  v = params[:value]
+  line_in_file "/etc/ssh/sshd_config" do
+    line "#{k} #{v}"
+    match_rx %r{^#?\s*#{k}\s}
+  end
+end
+
+define :pf_snippet, content: nil do
+  node[:pf_snippets] ||= []
+  node[:pf_snippets] << params[:content]
+
+  local_ruby_block "register pf snippet #{params[:name]}" do
+    block {}
+    notifies :create, "template[/etc/pf/services.local.anchor]"
+  end
+end
+
+define :syslog_snippet, content: nil do
+  node[:syslog_snippets] ||= []
+  node[:syslog_snippets] << params[:content]
+
+  local_ruby_block "register syslog snippet #{params[:name]}" do
+    block {}
+    notifies :create, "template[/etc/syslog.conf]"
+  end
+end

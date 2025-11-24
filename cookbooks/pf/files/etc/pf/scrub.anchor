@@ -1,0 +1,4 @@
+match in all scrub (no-df random-id min-ttl 64)
+match in proto tcp scrub(reassemble tcp max-mss 1440)
+
+# vim: ft=pf
