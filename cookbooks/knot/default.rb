@@ -103,7 +103,7 @@ service 'knot' do
   action %i[enable start]
 end
 
-pf_snippet do
+pf_snippet 'knot' do
   content <<~PF
     # dns redirect to knot on non-standard port
     pass in proto { udp tcp } to port domain rdr-to 127.0.0.1 port #{node[:knot_localhost_port]}

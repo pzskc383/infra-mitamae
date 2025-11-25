@@ -14,13 +14,8 @@ template "pf_dynamic_services" do
   notifies :run, "execute[reload_pf]"
 end
 
-local_ruby_block "rerender_pf_services" do
-  action :nothing
-  notifies :create, "template[pf_dynamic_services]"
-end
-
 define :pf_snippet, content: nil do
-  node[:pf_snippets] << params[:content]
+  node[:pf_snippets] << (params[:content] || params[:name])
 
-  notify! :run, "local_ruby_block[rerender_pf_services]"
+  notify!("template[pf_dynamic_services]") { action :create }
 end

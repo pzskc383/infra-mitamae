@@ -20,9 +20,7 @@ line_in_file "/etc/inetd.conf" do
   match_rx(%r{^#?telnet\s+stream\s+tcp6\s})
 end
 
-pf_snippet "dickd" do
-  content "pass proto tcp to port telnet"
-end
+pf_snippet "pass proto tcp to port telnet"
 
 service "inetd" do
   action %i[enable restart]

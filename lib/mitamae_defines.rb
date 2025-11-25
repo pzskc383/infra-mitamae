@@ -30,3 +30,11 @@ define :line_in_file, line: nil, match_rx: nil do
     end
   end
 end
+
+define :notify!, action: nil do
+  local_block_name = "notify_#{params[:action]}_#{params[:name]}".gsub(%r{[^a-z0-9_]}, '')
+  local_ruby_block local_block_name do
+    block {} # rubocop:disable Lint/EmptyBlock
+    notifies params[:action], params[:name]
+  end
+end

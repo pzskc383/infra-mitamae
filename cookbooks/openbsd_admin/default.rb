@@ -34,6 +34,4 @@ sshd_param("Port") { value "38322" }
 sshd_param("PermitRootLogin") { value "prohibit-password" }
 sshd_param("PasswordAuthentication") { value "no" }
 
-pf_snippet "sshd" do
-  content "pass proto tcp to port 38322"
-end
+pf_snippet "pass proto tcp to port 38322"
