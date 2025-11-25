@@ -2,8 +2,8 @@ server:
     rundir: "/var/run/knot"
     user: _knot:_knot
     automatic-acl: on
-    listen: 127.0.0.1@17053
-    listen: ::1@17053
+    listen: 127.0.0.1@<%= node[:knot_localhost_port] %>
+    listen: ::1@<%= node[:knot_localhost_port] %>
     identity: ""
     version: ""
     nsid: ""
@@ -79,16 +79,16 @@ template:
     journal-content: changes
 
 zone:
-<% @knot_zones.each do |zone_name, zone_config| -%>
-  - domain: <%= zone_name %>
-<% is_primary = zone_config[:primary] == @current_host -%>
+<% @knot_zones.each do |z| -%>
+  - domain: <%= z[:name] %>
+<% is_primary = z[:primary] == @current_host -%>
 <% if is_primary -%>
     template: signed
-<% zone_config[:secondaries].each do |slave| -%>
+<% z[:secondaries].each do |slave| -%>
     notify: <%= slave %>
 <% end -%>
 <% else -%>
     template: slave
-    master: <%= zone_config[:primary] %>
+    master: <%= z[:primary] %>
 <% end -%>
 <% end -%>

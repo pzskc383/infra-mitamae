@@ -29,3 +29,10 @@ module MItamae
     end
   end
 end
+
+# Top-level helper to trigger notifications from define blocks
+# Must be defined at top-level to be available in instance_exec context
+def notify!(action, resource_desc, timing = :delay)
+  notification = MItamae::Notification.create(@recipe.definition, action, resource_desc, timing)
+  @recipe.definition.notifications << notification
+end

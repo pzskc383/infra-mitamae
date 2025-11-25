@@ -29,15 +29,15 @@ lego_certs:
     key_path: /etc/ssl/pzskc383.dp.ua.key
 
 knot_zones:
-  pzskc383.net:
+  - name: pzskc383.net
     primary: airstrip1
     secondaries:
       - b0rsch
-  pzskc383.dp.ua:
+  - name: pzskc383.dp.ua
     primary: airstrip1
     secondaries:
       - b0rsch
-  b0x.pw:
+  - name: b0x.pw
     primary: f0rk
     secondaries:
       - airstrip1

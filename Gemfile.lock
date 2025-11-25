@@ -4,6 +4,8 @@ GEM
     ansi (1.5.0)
     ast (2.4.3)
     base64 (0.3.0)
+    bcrypt_pbkdf (1.1.1)
+    ed25519 (1.4.0)
     hashie (5.0.0)
     hocho (0.3.8)
       hashie
@@ -86,6 +88,8 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  bcrypt_pbkdf (~> 1.0)
+  ed25519 (~> 1.2)
   hocho
   rake
   rubocop

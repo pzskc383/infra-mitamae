@@ -21,44 +21,12 @@ define :line_in_file, line: nil, match_rx: nil do
     block do |data|
       data.gsub!(%r{^.*$}) do |l|
         if match_rx.match?(l)
-          MItamae.logger.debug "Replacing #{l} with #{params[:line]}"
+          ::MItamae.logger.debug "Replacing #{l} with #{params[:line]}"
           params[:line]
         else
           l
         end
       end
-    end
-  end
-end
-
-define :sshd_param, value: nil do
-  k = params[:name]
-  v = params[:value]
-  line_in_file "/etc/ssh/sshd_config" do
-    line "#{k} #{v}"
-    match_rx %r{^#?\s*#{k}\s}
-  end
-end
-
-define :sysctl, value: nil do
-  k = params[:name]
-  v = params[:value]
-
-  line_in_file "/etc/sysctl.conf" do
-    line "#{k}=#{v}"
-    match_rx %r{^#{k}=}
-  end
-end
-
-define :pf_snippet, content: nil do
-  node[:pf_snippets] ||= []
-  node[:pf_snippets] << params[:content]
-
-  unless node[:_pf_snippet_notifier]
-    node[:_pf_snippet_notifier] = true
-
-    local_ruby_block "pf snippets collector" do
-      notifies :create, "template[/etc/pf/services.anchor]"
     end
   end
 end

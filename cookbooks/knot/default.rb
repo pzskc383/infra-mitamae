@@ -1,38 +1,62 @@
 # Knot DNS cookbook
+node.reverse_merge!({
+  knot_localhost_port: 17_053,
+  knot_zones: [],
+  knot_zone_snippets: [],
+  knot_dnssec: []
+})
 
-module KnotHelpers
-  def dns_serial
+node.validate! do
+  {
+    knot_dns_serial: optional(integer),
+    knot_localhost_port: integer,
+    knot_zone_snippets: array_of({
+      zone: string,
+      content: array_of(string)
+    }),
+    knot_zones: array_of({
+      name: string,
+      primary: string,
+      secondaries: array_of(string)
+    }),
+    knot_dnssec: array_of({
+      zone: string,
+      ksk: {
+        priv: string
+      }
+    })
+  }
+end
+
+local_ruby_block "knot_set_dns_serial" do
+  block do
     now = Time.now
     midnight = Time.new(now.year, now.month, now.day, 0, 0, 0)
     part = ((now.to_i - midnight.to_i) * 99 / 86_400)
-    Kernel.format("%s%02d", now.strftime("%Y%m%d"), part)
+    serial = Kernel.format("%s%02d", "#{now.year}#{now.month}#{now.day}", part)
+
+    node.reverse_merge!({ knot_dns_serial: serial })
   end
 end
 
-MItamae::RecipeContext.include(KnotHelpers)
-
-# Install packages
 %w[knot dbus ldns-utils].each do |pkg|
   openbsd_package pkg do
     action :install
   end
 end
 
-# Zone directory
 directory '/var/db/knot/zones' do
   mode '0750'
   owner '_knot'
   group 'wheel'
 end
 
-# Log directory
 directory '/var/log/knot' do
   mode '0755'
   owner '_knot'
   group '_knot'
 end
 
-# Knot configuration
 template '/etc/knot/knot.conf' do
   source 'templates/knot.conf.erb'
   mode '0644'
@@ -47,29 +71,42 @@ template '/etc/knot/knot.conf' do
   notifies :restart, 'service[knot]'
 end
 
-# Zone files (primary only)
-node[:knot_zones].each_key do |zone_name|
-  next unless node[:knot_zones][zone_name][:primary] == node[:hocho_host]
+node[:knot_zones].each do |z|
+  next unless z[:primary] == node[:hocho_host]
 
-  template "/var/db/knot/zones/#{zone_name}.zone" do
-    source "templates/zones/#{zone_name}.zone.erb"
+  template "/var/db/knot/zones/#{z[:name]}.zone" do
+    source "templates/zones/#{z[:name]}.zone.erb"
     mode '0644'
     owner '_knot'
     group 'wheel'
     variables(hosts: node[:hosts])
+
     notifies :reload, 'service[knot]'
+    subscribes :run, 'local_ruby_block[rerender_zones]'
   end
 end
 
-# Enable and start service
+local_ruby_block "rerender_zones" do
+  action :nothing
+end
+
+define :zone_snippet, zone: nil, content: nil do
+  node[:knot_zone_snippets] << {
+    zone: params[:zone],
+    content: params[:content]
+  }
+
+  notifies :run, "local_ruby_block[rerender_zones]"
+end
+
 service 'knot' do
   action %i[enable start]
 end
 
-# Register PF snippet for DNS redirect
-node[:pf_snippets] ||= []
-node[:pf_snippets] << <<~PF
-  # dns redirect to knot on non-standard port
-  pass in proto { udp tcp } to port domain rdr-to 127.0.0.1 port 17053
-  pass in proto { udp tcp } to port domain rdr-to ::1 port 17053
-PF
+pf_snippet do
+  content <<~PF
+    # dns redirect to knot on non-standard port
+    pass in proto { udp tcp } to port domain rdr-to 127.0.0.1 port #{node[:knot_localhost_port]}
+    pass in proto { udp tcp } to port domain rdr-to ::1 port #{node[:knot_localhost_port]}
+  PF
+end

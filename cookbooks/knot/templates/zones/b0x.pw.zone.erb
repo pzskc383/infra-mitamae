@@ -6,18 +6,11 @@ $TTL 15m
 @ IN NS a.ns
 @ IN NS b.ns
 
-a.ns IN A <%= @hosts["f0rk"][:v4] %>
-b.ns IN A <%= @hosts["aistrip1"][:v4] %>
+a.ns IN A <%= @hosts[:f0rk][:v4] %>
+b.ns IN A <%= @hosts[:airstrip1][:v4] %>
 
-@ IN NSEC3PARAM 1 0 0 -
-
-@ IN CAA 128 issue "letsencrypt.org;validationmethods=dns-01"
-@ IN CAA 128 issuewild "letsencrypt.org;validationmethods=dns-01"
-
-@ IN MX 0 .
-
-@ IN A <%= @hosts["f0rk"][:v4] %>
-@ IN AAAA <%= @hosts["f0rk"][:v6] %>
+@ IN A <%= @hosts[:f0rk][:v4] %>
+@ IN AAAA <%= @hosts[:f0rk][:v6] %>
 
 <% @hosts.each do |hostname, data| -%>
 <%= data[:dns_shortname] %> IN A <%= data[:v4] %>
@@ -27,3 +20,10 @@ b.ns IN A <%= @hosts["aistrip1"][:v4] %>
 <% @hosts.each do |hostname, data| -%>
 <%= hostname %> IN CNAME <%= data[:dns_shortname] %>
 <% end -%>
+
+@ IN NSEC3PARAM 1 0 0 -
+
+@ IN CAA 128 issue "letsencrypt.org;validationmethods=dns-01"
+@ IN CAA 128 issuewild "letsencrypt.org;validationmethods=dns-01"
+
+@ IN MX 0 .

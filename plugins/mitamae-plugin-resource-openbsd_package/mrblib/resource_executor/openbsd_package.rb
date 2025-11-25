@@ -82,7 +82,7 @@ module ::MItamae
           info = { name: pkg_name, installed: false }
           fuzzy_check_result = run_command(["pkg_info", "-qze", "#{pkg_name}-*"], error: false)
 
-          return info if fuzzy_check_result.exit_status.positive?
+          return info if fuzzy_check_result.exit_status > 0
 
           info[:installed] = true
 

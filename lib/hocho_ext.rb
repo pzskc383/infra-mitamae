@@ -1,11 +1,10 @@
 # Monkey-patches for hocho to support OpenBSD (sh instead of bash, configurable sudo)
-
+#
 require "hocho/drivers/mitamae"
 require "hocho/drivers/ssh_base"
 
 module HochoOpenBSDPatches
   module MitamaePatches
-    # Override prepare_mitamae to use sh instead of bash
     def prepare_mitamae
       return if mitamae_available? && !mitamae_outdated?
 
@@ -32,7 +31,6 @@ module HochoOpenBSDPatches
       raise "prepared MItamae, but it's still #{status}"
     end
 
-    # Override run_mitamae to use sh instead of bash
     def run_mitamae(dry_run: false)
       with_host_node_json_file do
         itamae_cmd = [@mitamae_path, "local", "-j", host_node_json_path, *@mitamae_options]

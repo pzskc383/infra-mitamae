@@ -8,6 +8,7 @@ plugins:
 
 AllCops:
   NewCops: enable
+  TargetRubyVersion: 3.0
   Include:
   - Rakefile
   - Gemfile
@@ -49,6 +50,21 @@ Metrics/CyclomaticComplexity:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+# MItamae extensions need to be specific with ::
+Style/RedundantConstantBase:
+  Enabled: false
+
+# doesnt exist in mruby-3.0
+Style/NumericPredicate:
+  Enabled: false
+
+# i like it
+Style/ParallelAssignment:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
 
 Style/StringLiterals:
   Enabled: false

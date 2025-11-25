@@ -4,6 +4,11 @@ source "https://rubygems.org"
 
 gem "hocho" # , path: "hack/gems/hocho"
 
+# net-ssh deps
+gem "bcrypt_pbkdf", "~> 1.0"
+gem "ed25519", "~> 1.2"
+# gem "x25519"
+
 gem "rake"
 
 group :development do
