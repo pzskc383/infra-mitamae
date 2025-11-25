@@ -51,7 +51,7 @@ While mitamae looks like Chef, **it is NOT Chef**. Refer to `misc/mitamae/mrblib
 
 - **mruby-based**: Compiled, not Ruby. Limited stdlib.
 - **Resource model**: Similar to Chef but simplified. See `misc/mitamae/mrblib/mitamae/resource/base.rb` for the base resource implementation.
-- **Plugin system**: Custom resources live in `plugins/` and follow the naming pattern `{,m}itamae-plugin-resource-*/mrblib/**/*.rb`.
+- **Plugin system**: Custom resources live in `plugins/` and follow the naming  pattern `{,m}itamae-plugin-resource-*/mrblib/**/*.rb`.
 
 ### Directory Structure
 

@@ -12,12 +12,12 @@ end
 
 line_in_file "/etc/inetd.conf" do
   line "telnet stream tcp nowait root #{dickd_bin} erection"
-  match_rx(%r{^#?telnet\s+stream\s+tcp\s})
+  pattern(%r{^#?telnet\s+stream\s+tcp\s})
 end
 
 line_in_file "/etc/inetd.conf" do
   line "telnet stream tcp6 nowait root #{dickd_bin} erection"
-  match_rx(%r{^#?telnet\s+stream\s+tcp6\s})
+  pattern(%r{^#?telnet\s+stream\s+tcp6\s})
 end
 
 pf_snippet "pass proto tcp to port telnet"

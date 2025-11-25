@@ -68,12 +68,12 @@ module Hocho
           }
         end
 
-        # Add hub host from global attributes
-        if @global_attrs[:hub]
-          data[:hub] = {
-            dns_shortname: @global_attrs[:hub][:dns_shortname],
-            v4: @global_attrs[:hub][:v4],
-            v6: @global_attrs[:hub][:v6]
+        # Add ex1t host from global attributes
+        if @global_attrs[:ex1t]
+          data[:ex1t] = {
+            dns_shortname: @global_attrs[:ex1t][:dns_shortname],
+            v4: @global_attrs[:ex1t][:v4],
+            v6: @global_attrs[:ex1t][:v6]
           }
         end
 

@@ -1,0 +1,22 @@
+# virtual user mappings
+<% @primary_domains.each do |d| -%>
+
+<%# domain-wide catchall forwarding #%>
+<%- if @domains[d][:catchall_account] -%>
+@<%= d %> <%= @domains[d][:catchall_account] %>
+<% end -%>
+<%- if @domains[d][:catchall_subdomains] -%>
+@*.<%= d %> <%= @domains[d][:catchall_account] %>
+<% end -%>
+
+<%# admin email aliases %>
+<% node[:mail_admin_aliases].each do |aliased| -%>
+<%= aliased %>@<%= d %> <% @domains[d][:admin_account] %>
+<% end -%>
+
+<% end -%>
+
+<%# real users as virtual email accounts %>
+<%- @accounts.each do |acc| -%>
+<%= acc[:email] %> vmail
+<% end -%>

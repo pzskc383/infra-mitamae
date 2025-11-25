@@ -1,5 +1,5 @@
-$ORIGIN pzskc383.net.
-$TTL 15m
+$ORIGIN b0x.pw.
+$TTL 30m
 
 @ IN SOA a.ns root ( 1 4h 1h 2w 1h )
 
@@ -12,14 +12,6 @@ b.ns IN A <%= @hosts[:airstrip1][:v4] %>
 @ IN A <%= @hosts[:f0rk][:v4] %>
 @ IN AAAA <%= @hosts[:f0rk][:v6] %>
 
-<% @hosts.each do |hostname, data| -%>
-<%= data[:dns_shortname] %> IN A <%= data[:v4] %>
-<%= data[:dns_shortname] %> IN AAAA <%= data[:v6] %>
-<% end -%>
-
-<% @hosts.each do |hostname, data| -%>
-<%= hostname %> IN CNAME <%= data[:dns_shortname] %>
-<% end -%>
 
 @ IN NSEC3PARAM 1 0 0 -
 

@@ -1,14 +1,27 @@
 
 mail_domains:
   pzskc383.net:
+    admin_account: maniac@pzskc383.net
+    catchall_account: maniac@pzskc383.net
+    catchall_subdomains: true
     servers:
       - airstrip1
       - b0rsch
-    main_account: maniac@pzskc383.net
 
   pzskc383.dp.ua:
-    main_account: maniac@pzskc383.net
+    admin_account: maniac@pzskc383.net
+    catchall_account: maniac@pzskc383.net
+    catchall_subdomains: true
     servers:
+      - airstrip1
+      - b0rsch
+
+  b0x.pw:
+    admin_account: the@b0x.pw
+    catchall_account: false
+    catchall_subdomains: false    
+    servers:
+      - f0rk
       - airstrip1
       - b0rsch
 
@@ -18,26 +31,30 @@ lego_certs:
       - pzskc383.net
       - '*.pzskc383.net'
     zone: pzskc383.net
-    cert_path: /etc/ssl/pzskc383.net.crt
-    key_path: /etc/ssl/pzskc383.net.key
+
   - name: wild_dpua
     domains:
       - pzskc383.dp.ua
       - '*.pzskc383.dp.ua'
     zone: pzskc383.dp.ua
-    cert_path: /etc/ssl/pzskc383.dp.ua.crt
-    key_path: /etc/ssl/pzskc383.dp.ua.key
+  
+  - name: bare_box
+    domains:
+      - b0x.pw
+    zone: b0x.pw
 
 knot_zones:
   - name: pzskc383.net
-    primary: airstrip1
+    primary: f0rk
     secondaries:
-      - b0rsch
-  - name: pzskc383.dp.ua
-    primary: airstrip1
-    secondaries:
-      - b0rsch
+      - airstrip1
+
   - name: b0x.pw
     primary: f0rk
     secondaries:
       - airstrip1
+
+  - name: pzskc383.dp.ua
+    primary: airstrip1
+    secondaries:
+      - b0rsch

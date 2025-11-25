@@ -1,0 +1,20 @@
+sign_authenticated = true;
+sign_local = true;
+sign_inbound = false;
+
+<% @domains.each do |domain| -%>
+domain {
+	<%= domain %> {
+		selectors [
+			{
+				path = "$DBDIR/keys/<%= domain %>.r.key";
+				selector = "r";
+			},
+			{
+				path = "$DBDIR/keys/<%= domain %>.e.key";
+				selector = "e";
+			}
+		]
+	}
+}
+<% end -%>

@@ -3,7 +3,7 @@ define :sshd_param, value: nil do
 
   line_in_file "/etc/ssh/sshd_config" do
     line "#{k} #{v}"
-    match_rx %r{^#?\s*#{k}\s}
+    pattern %r{^#?\s*#{k}\s}
   end
 end
 
@@ -12,7 +12,7 @@ define :sysctl, value: nil do
 
   line_in_file "/etc/sysctl.conf" do
     line "#{k}=#{v}"
-    match_rx %r{^#{k}=}
+    pattern %r{^#{k}=}
   end
 end
 

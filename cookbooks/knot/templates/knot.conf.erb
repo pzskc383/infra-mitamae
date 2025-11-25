@@ -78,8 +78,8 @@ template:
     zonefile-load: none
     journal-content: changes
 
-zone:
 <% @knot_zones.each do |z| -%>
+zone:
   - domain: <%= z[:name] %>
 <% is_primary = z[:primary] == @current_host -%>
 <% if is_primary -%>

@@ -1,0 +1,7 @@
+# @list
+<% @domains.each do |domain| -%>
+<%= domain %>
+<% if node[:mail_domains][domain][:catchall_subdomains] -%>
+*.<%= domain %>
+<% end -%>
+<% end -%>
