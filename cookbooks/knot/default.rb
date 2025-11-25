@@ -71,32 +71,39 @@ template '/etc/knot/knot.conf' do
   notifies :restart, 'service[knot]'
 end
 
+local_ruby_block "rerender_zones" do
+  action :nothing
+end
+
+define :zone_snippet, content: nil do
+  node[:knot_zone_snippets] << {
+    zone: params[:name],
+    content: params[:content]
+  }
+
+  notify!("local_ruby_block[rerender_zones]") { action :run }
+end
+
 node[:knot_zones].each do |z|
   next unless z[:primary] == node[:hocho_host]
 
   template "/var/db/knot/zones/#{z[:name]}.zone" do
     source "templates/zones/#{z[:name]}.zone.erb"
-    mode '0644'
+    mode '0640'
     owner '_knot'
     group 'wheel'
+
     variables(hosts: node[:hosts])
 
     notifies :reload, 'service[knot]'
-    subscribes :run, 'local_ruby_block[rerender_zones]'
+    subscribes :create, 'local_ruby_block[rerender_zones]'
   end
 end
 
-local_ruby_block "rerender_zones" do
-  action :nothing
-end
-
-define :zone_snippet, zone: nil, content: nil do
-  node[:knot_zone_snippets] << {
-    zone: params[:zone],
-    content: params[:content]
-  }
-
-  notifies :run, "local_ruby_block[rerender_zones]"
+node[:knot_dnssec].each do |z|
+  zone_snippet z[:name] do
+    content "@ IN #{z[:ksk][:dnskey]}"
+  end
 end
 
 service 'knot' do

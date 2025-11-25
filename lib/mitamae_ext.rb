@@ -19,11 +19,10 @@ module MItamae
       command = Shellwords.shelljoin(command) if command.is_a?(Array)
       command = "cd #{cwd.shellescape} && #{command}" if cwd
 
-      if user
-        sudo_cmd = @node&.[](:sudo_command) || "sudo"
-        command = "cd ~#{user.shellescape} ; #{command}"
-        command = "#{sudo_cmd} -u #{user.shellescape} #{@shell.shellescape} -c #{command.shellescape}"
-      end
+      # Skip user switching - we're already root, don't call sudo/doas
+      # if user
+      #   command = "cd ~#{user.shellescape} ; #{command}"
+      # end
 
       command
     end

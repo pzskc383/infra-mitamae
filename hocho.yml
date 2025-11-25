@@ -7,16 +7,15 @@ property_providers:
       properties:
         preferred_driver: mitamae
         sudo_required: false
-        sudo_command: doas
         ssh_options:
           user: root
 
 driver_options:
   mitamae:
     mitamae_path: /usr/local/bin/mitamae
-    mitamae_options:
-      - --log-level
-      - debug
+    # mitamae_options:
+    #   - --log-level
+    #   - debug
     mitamae_prepare_script: |
       chmod +x /usr/local/bin/mitamae
       /usr/local/bin/mitamae version

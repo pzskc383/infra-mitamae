@@ -61,26 +61,35 @@ While mitamae looks like Chef, **it is NOT Chef**. Refer to `misc/mitamae/mrblib
 ├── Rakefile                       # SOPS encryption/decryption tasks
 ├── .sops.yaml                     # SOPS encryption configuration
 ├── data/                          # Host definitions and variables
-│   ├── hosts/                     # Per-host SOPS-encrypted configs
-│   │   ├── a1.sops.yml            # airstrip1 config
-│   │   ├── b0.sops.yml            # b0rsch config
-│   │   └── f0.sops.yml            # f0rk config
+│   ├── hosts/                     # Per-host configs (directories)
+│   │   ├── airstrip1/
+│   │   │   ├── default.yml        # Host properties and run_list
+│   │   │   └── secrets.sops.yml   # SOPS-encrypted host secrets
+│   │   ├── b0rsch/
+│   │   │   ├── default.yml
+│   │   │   └── secrets.sops.yml
+│   │   └── f0rk/
+│   │       ├── default.yml
+│   │       └── secrets.sops.yml
 │   └── vars/
 │       ├── default.yml            # Global variables
-│       └── secrets.sops.yml       # Encrypted secrets
+│       └── secrets.sops.yml       # Encrypted global secrets
 ├── cookbooks/                     # Mitamae recipes
-│   ├── openbsd_server/            # Main server config (vim, network, DNS)
+│   ├── openbsd_server/            # Main server config (vim, network, etc)
 │   ├── openbsd_admin/             # Admin tools (git, zsh, doas, tmux)
-│   └── openbsd_com0/              # Serial console configuration
+│   ├── openbsd_com0/              # Serial console configuration
+│   ├── pf/                        # Packet filter (firewall) configuration
+│   ├── knot/                      # Knot DNS server
+│   └── dickd/                     # Custom dickd service
 ├── plugins/                       # Custom mitamae plugins
 │   ├── mitamae-plugin-resource-openbsd_package/
 │   └── mitamae-plugin-resource-cron/  # Git submodule
 ├── lib/                           # Custom extensions
-│   ├── mitamae_ext.rb             # Adds --sudo-command to mitamae
-│   ├── hocho_ext.rb               # OpenBSD compatibility (doas, sh)
-│   ├── property_script.rb         # Variable/secrets loading
+│   ├── mitamae_ext.rb             # Removes sudo/doas (running as root)
+│   ├── mitamae_defines.rb         # Custom resource definitions
+│   ├── hocho_ext.rb               # OpenBSD compatibility (sh, doas)
 │   └── hocho/inventory_providers/
-│       └── sops_file.rb           # SOPS-encrypted inventory provider
+│       └── yaml_dir.rb            # YAML directory inventory provider
 ├── dist/                          # Pre-compiled mitamae binaries
 │   ├── mitamae-arm64-openbsd
 │   └── mitamae-x86_64-openbsd
@@ -96,24 +105,26 @@ While mitamae looks like Chef, **it is NOT Chef**. Refer to `misc/mitamae/mrblib
 
 Key files:
 - `hocho.yml`: Defines inventory providers, property providers, and driver options
-- `data/hosts/*.sops.yml`: SOPS-encrypted host configurations with run_list
+- `data/hosts/*/default.yml`: Host properties and run_list
+- `data/hosts/*/secrets.sops.yml`: SOPS-encrypted host-specific secrets (SSH credentials, network config)
 - `data/vars/default.yml`: Global variables (domain, DNS, mail config)
-- `data/vars/secrets.sops.yml`: Encrypted secrets
+- `data/vars/secrets.sops.yml`: Encrypted global secrets
 
 Custom extensions in `lib/`:
-- **`mitamae_ext.rb`**: Adds `--sudo-command` CLI option to mitamae for configurable privilege escalation
+- **`mitamae_ext.rb`**: Removes sudo/doas command wrapping (since we connect as root directly)
+  - Overrides `build_command` to skip user switching
+  - Connects node object to backend for custom resource access
+- **`mitamae_defines.rb`**: Custom resource definitions (block_in_file, line_in_file, notify!)
 - **`hocho_ext.rb`**: Patches hocho for OpenBSD compatibility
   - Uses `sh` instead of `bash`
-  - Passes `sudo_command` from host properties to mitamae
-  - Password-based privilege escalation via openssl/askpass
-- **`property_script.rb`**: Loads `default.yml` and decrypts `secrets.sops.yml` into host attributes
-- **`sops_file.rb`**: Custom inventory provider that decrypts SOPS host files
+  - Implements password-based privilege escalation via openssl/askpass (currently unused as `sudo_required: false`)
+- **`yaml_dir.rb`**: Custom inventory provider that loads hosts from YAML directory structure
 
 Configuration flow:
 1. Hocho reads `hocho.yml` configuration
-2. Loads host inventory via `sops_file` provider (decrypts SOPS YAML)
-3. Applies property providers to inject variables and secrets
-4. Executes mitamae driver with doas support
+2. Loads host inventory via `yaml_dir` provider from `data/hosts/*/`
+3. Applies property providers to set defaults (`sudo_required: false`, `ssh_options.user: root`)
+4. Executes mitamae driver, connecting as root directly (no sudo/doas needed)
 
 ### Custom Plugins
 
@@ -158,3 +169,46 @@ end
 ### Reference Materials
 - Mitamae source: `misc/mitamae/mrblib/mitamae/`
 - Example configs: `misc/sorah-cnw/`
+
+## Common Issues and Solutions
+
+### Resource Actions and Subscriptions
+
+When using `subscribes` with resources, you must specify the action that the **subscribing resource** should take, not the action of the watched resource.
+
+**Incorrect:**
+```ruby
+template "/path/to/file" do
+  subscribes :run, 'local_ruby_block[trigger]'  # ❌ templates don't have :run action
+end
+```
+
+**Correct:**
+```ruby
+template "/path/to/file" do
+  subscribes :create, 'local_ruby_block[trigger]'  # ✅ use the template's action
+end
+```
+
+### SSH Configuration
+
+In host secrets files, use `host_name` (with underscore) for net-ssh compatibility:
+
+**Incorrect:**
+```yaml
+ssh_options:
+  hostname: 192.0.2.1  # ❌ invalid net-ssh option
+```
+
+**Correct:**
+```yaml
+properties:
+  addr: 192.0.2.1      # ✅ use addr in properties
+ssh_options:
+  host_name: 192.0.2.1 # ✅ or use host_name in ssh_options
+  port: 22
+```
+
+### Running as Root
+
+This configuration connects as root directly (`ssh_options.user: root`) and has `sudo_required: false`. The `mitamae_ext.rb` monkey patch removes all sudo/doas wrapping since it's unnecessary when already running as root.

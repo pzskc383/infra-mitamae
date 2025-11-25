@@ -27,8 +27,6 @@ Dir.glob("cookbooks/openbsd_server/files/**/*.*").each do |fn|
   remote_file fn do
     source :auto
     mode "0640"
-    user "root"
-    group "wheel"
   end
 end
 
@@ -36,8 +34,6 @@ template "/etc/hostname.vio0"
 
 file "/etc/resolv.conf" do
   mode "0644"
-  user "root"
-  group "wheel"
 end
 
 service "unbound" do

@@ -1,3 +1,8 @@
+# PF firewall cookbook
+node.reverse_merge!({
+  pf_snippets: []
+})
+
 # check and reload pf config
 execute "reload_pf" do
   action :nothing
