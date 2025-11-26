@@ -30,8 +30,24 @@ block_in_file "/root/.profile" do
   SNIPPET
 end
 
-sshd_param("Port") { value "38322" }
-sshd_param("PermitRootLogin") { value "prohibit-password" }
-sshd_param("PasswordAuthentication") { value "no" }
+execute "restart_sshd" do
+  action :nothing
+  command "rcctl restart sshd"
+  not_if "sshd -t"
+end
+
+{
+  "Port" => "38322",
+  "PermitRootLogin" => "prohibit-password",
+  "PasswordAuthentication" => "no"
+}.each do |k, v|
+  config_set "/etc/ssh/sshd_config" do
+    key k
+    value v
+    notifies :run, "execute[:restart_sshd]"
+  end
+end
+
+include_recipe "../pf/dynamic.rb"
 
 pf_snippet "pass proto tcp to port 38322"

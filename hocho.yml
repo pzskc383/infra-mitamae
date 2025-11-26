@@ -13,9 +13,9 @@ property_providers:
 driver_options:
   mitamae:
     mitamae_path: /usr/local/bin/mitamae
-    # mitamae_options:
-    #   - --log-level
-    #   - debug
+    mitamae_options:
+      - --log-level
+      - debug
     mitamae_prepare_script: |
       chmod +x /usr/local/bin/mitamae
       /usr/local/bin/mitamae version

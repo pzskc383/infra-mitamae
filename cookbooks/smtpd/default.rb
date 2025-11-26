@@ -16,7 +16,7 @@ node[:mail_domains].each do |domain, config|
 
   if servers[0] == node[:hostname]
     primary_domains << domain
-    config[:accounts].each do |acc|
+    (config[:accounts] || []).each do |acc|
       mail_accounts << {
         email: "#{acc[:username]}@#{domain}",
         password_hash: acc[:password_hash]
@@ -82,7 +82,8 @@ if mail_role == "primary"
     group "_smtpd"
     variables(
       primary_domains: primary_domains,
-      domains: primary_domains.map { |d| node[:mail_domains][d] }
+      domains: node[:mail_domains],
+      accounts: mail_accounts
     )
     notifies :run, "execute[makemap vusers]"
     notifies :restart, "service[smtpd]"
@@ -150,6 +151,8 @@ local_ruby_block "restart_smtpd" do
     service("smtpd") { action :restart }
   end
 end
+
+include_recipe "../pf/dynamic.rb"
 
 # Add PF firewall rules for mail services
 pf_snippet "mail" do

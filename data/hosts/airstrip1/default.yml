@@ -1,7 +1,6 @@
 properties:
   run_list:
     - cookbooks/openbsd_server/default.rb
-    - cookbooks/pf/dynamic.rb
     - cookbooks/openbsd_com0/default.rb
     - cookbooks/openbsd_admin/default.rb
     - cookbooks/pf/default.rb

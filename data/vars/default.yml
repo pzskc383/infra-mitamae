@@ -21,8 +21,8 @@ mail_domains:
     catchall_account: false
     catchall_subdomains: false    
     servers:
-      - f0rk
       - airstrip1
+      - f0rk
       - b0rsch
 
 lego_certs:

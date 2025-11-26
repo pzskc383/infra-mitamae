@@ -103,7 +103,7 @@ module Hocho
 
             # Inject hosts data and current host name
             attrs[:hosts] = hosts_data
-            attrs[:hocho_host] = name
+            attrs[:hostname] = name
 
             props[:attributes] = attrs
 

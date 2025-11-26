@@ -1,4 +1,4 @@
 # auth data
 <% @accounts.each do |account| -%>
-<%= account[:username] %>:<%= account[:password_hash] %>::::::
+<%= account[:email] %>:<%= account[:password_hash] %>::::::
 <% end %>

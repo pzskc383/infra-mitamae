@@ -66,7 +66,7 @@ template '/etc/knot/knot.conf' do
     knot_zones: node[:knot_zones],
     knot_tsig_secret: node[:knot_tsig_secret],
     hosts: node[:hosts],
-    current_host: node[:hocho_host]
+    current_host: node[:hostname]
   )
   notifies :restart, 'service[knot]'
 end
@@ -85,7 +85,7 @@ define :zone_snippet, content: nil do
 end
 
 node[:knot_zones].each do |z|
-  next unless z[:primary] == node[:hocho_host]
+  next unless z[:primary] == node[:hostname]
 
   template "/var/db/knot/zones/#{z[:name]}.zone" do
     source "templates/zones/#{z[:name]}.zone.erb"
