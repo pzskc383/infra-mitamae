@@ -44,7 +44,7 @@ pf_conf "/etc/pf.conf" do
   mode "0600"
 end
 
-pf_conf "/etc/pf" do
+directory "/etc/pf" do
   mode "0700"
 end
 

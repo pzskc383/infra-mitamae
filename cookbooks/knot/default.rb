@@ -129,7 +129,8 @@ define :knot_domain_ksk, ksk: nil do
 end
 
 node[:knot_dnssec].each do |dnskey|
-  next unless local_zones.include? dnskey[:zone]
+  zone = dnskey[:zone]
+  next unless local_zones.include? zone
 
   knot_domain_ksk dnskey[:zone] do
     ksk dnskey[:ksk]

@@ -1,3 +1,5 @@
+file "/etc/sysctl.conf"
+
 define :sysctl, name: nil do
   line = params[:name]
   line_set "/etc/sysctl.conf" do
