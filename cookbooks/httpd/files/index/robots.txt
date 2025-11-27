@@ -1,0 +1,8 @@
+# i love robots!
+
+User-agent: *
+Allow: /
+DisallowAITraining: /
+Content-Signal: ai-train=no, search=yes, ai-input=no
+Content-Usage: ai=n
+Crawl-delay: 2

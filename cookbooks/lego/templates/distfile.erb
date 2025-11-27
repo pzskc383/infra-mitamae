@@ -7,15 +7,7 @@ FILES_<%= upcased %> = ( /etc/ssl/<%= cert.domains.first %>.crt /etc/ssl/<%= cer
 
 ${FILES_<%= upcased %>} -> ${HOSTS}
 	install -overify ;
+	special "rcctl restart httpd && rcctl restart relayd && rcctl restart smtpd" ;
 
 <% end %>
-<% if @hosts %>
-<% other_hosts.each do |hostname| %>
-# restart services on <%= hostname %>
-<% @lego_certs.each do |cert| %>
-${FILES_<%= upcased %>} -> <%= hostname %>
-	special "rcctl restart httpd && rcctl restart relayd && rcctl restart smtpd" ;
-<%- end -%>
-<%- end -%>
-<%- end -%>
 # vim: ft=rdist

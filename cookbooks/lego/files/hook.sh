@@ -29,7 +29,7 @@ deploy_cert() {
     chmod 640 "/etc/ssl/${domain}.crt" "/etc/ssl/${domain}.key"
 
     _log "Distributing certificates to other hosts"
-    rdist -f /var/lego/distfile
+    rdist -P "/usr/bin/ssh -p 38322" -f /var/lego/distfile
 
     _log "Restarting services locally"
     for svc in httpd relayd dovecot smtpd; do

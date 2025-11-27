@@ -8,7 +8,6 @@ node.reverse_merge!({
 
 node.validate! do
   {
-    knot_dns_serial: optional(integer),
     knot_localhost_port: integer,
     knot_zone_snippets: array_of({
       zone: string,
@@ -26,17 +25,6 @@ node.validate! do
       }
     })
   }
-end
-
-local_ruby_block "knot_set_dns_serial" do
-  block do
-    now = Time.now
-    midnight = Time.new(now.year, now.month, now.day, 0, 0, 0)
-    part = ((now.to_i - midnight.to_i) * 99 / 86_400)
-    serial = Kernel.format("%s%02d", "#{now.year}#{now.month}#{now.day}", part)
-
-    node.reverse_merge!({ knot_dns_serial: serial })
-  end
 end
 
 %w[knot dbus ldns-utils].each do |pkg|
@@ -73,6 +61,10 @@ end
 
 local_zones = []
 node[:knot_zones].each do |z|
+  now = Time.now
+  midnight = Time.new(now.year, now.month, now.day, 0, 0, 0)
+  part = ((now.to_i - midnight.to_i) * 99 / 86_400)
+  serial = Kernel.format("%s%02d", "#{now.year}#{now.month}#{now.day}", part)
   next unless z[:primary] == node[:hostname]
 
   zone = z[:name]
@@ -87,7 +79,8 @@ node[:knot_zones].each do |z|
     group 'wheel'
 
     variables(
-      hosts: node[:hosts]
+      hosts: node[:hosts],
+      serial: serial
     )
 
     notifies :reload, 'service[knot]'
@@ -95,7 +88,6 @@ node[:knot_zones].each do |z|
 end
 
 key_import_dir = "/var/db/knot/keys-import"
-directory key_import_dir
 
 define :knot_domain_ksk, ksk: nil do
   zone = params[:zone]
@@ -104,6 +96,7 @@ define :knot_domain_ksk, ksk: nil do
   local_ruby_block "keymgr import #{zone}" do
     not_if "keymgr #{zone} list |grep ZSK"
     block do
+      directory key_import_dir
       file "#{key_import_dir}/#{keyname}.private" do
         content params[:ksk][:priv]
         sensitive true
@@ -142,7 +135,7 @@ node[:knot_dnssec].each do |dnskey|
       keymgr #{zone} list|grep -F KSK|sed 1d |awk '{print $1}'|xargs -n1 keymgr #{zone} delete
       keymgr #{zone} list|grep -F ZSK|sed 1d |awk '{print $1}'|xargs -n1 keymgr #{zone} delete
     CMD
-    only_if "test $(keymgr #{zone} list |wc -) -gt 2"
+    only_if "test $(keymgr #{zone} list |wc -l) -gt 2"
   end
 
   execute "keymgr generate zsk for #{zone}" do
@@ -153,6 +146,7 @@ end
 
 directory key_import_dir do
   action :delete
+  only_if "test -d #{key_import_dir}"
 end
 
 service 'knot' do
