@@ -24,5 +24,5 @@ pf_snippet "pass proto tcp to port telnet"
 
 service "inetd" do
   action %i[enable restart]
-  subscribes :edit, "file[/etc/inetd.conf]"
+  subscribes :restart, "file[/etc/inetd.conf]"
 end

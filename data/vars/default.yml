@@ -58,3 +58,4 @@ knot_zones:
     primary: airstrip1
     secondaries:
       - b0rsch
+      - f0rk

@@ -71,39 +71,63 @@ template '/etc/knot/knot.conf' do
   notifies :restart, 'service[knot]'
 end
 
-local_ruby_block "rerender_zones" do
-  action :nothing
-end
-
-define :zone_snippet, content: nil do
-  node[:knot_zone_snippets] << {
-    zone: params[:name],
-    content: params[:content]
-  }
-
-  notify!("local_ruby_block[rerender_zones]") { action :run }
-end
-
+local_zones = []
 node[:knot_zones].each do |z|
   next unless z[:primary] == node[:hostname]
 
-  template "/var/db/knot/zones/#{z[:name]}.zone" do
+  zone = z[:name]
+  local_zones << zone
+
+  template "#{z[:name]}.zone" do
     source "templates/zones/#{z[:name]}.zone.erb"
+    path "/var/db/knot/zones/#{z[:name]}.zone"
+
     mode '0640'
     owner '_knot'
     group 'wheel'
 
-    variables(hosts: node[:hosts])
+    variables(
+      hosts: node[:hosts]
+    )
 
     notifies :reload, 'service[knot]'
-    subscribes :create, 'local_ruby_block[rerender_zones]'
   end
 end
 
-node[:knot_dnssec].each do |z|
-  zone_snippet z[:name] do
-    content "@ IN #{z[:ksk][:dnskey]}"
+key_import_dir = "/var/db/knot/keys-import"
+directory key_import_dir
+
+node[:knot_dnssec].each do |dnskey|
+  next unless local_zones.include? dnskey[:zone]
+
+  zone = dnskey[:zone]
+  keyname = format("K%s.+013+%05d", zone, dnskey[:ksk][:keytag])
+
+  file "#{key_import_dir}/#{keyname}.private" do
+    content dnskey[:ksk][:priv]
+    sensitive true
+    group "_knot"
+    mode "0640"
   end
+  file "#{key_import_dir}/#{keyname}.key" do
+    content "#{zone}. IN #{dnskey[:ksk][:dnskey]}"
+    group "_knot"
+    mode "0640"
+  end
+
+  execute "keymgr cleanup #{zone}" do
+    command "keymgr #{zone} list|cut -f1 -d' ' |xargs -n1 keymgr #{zone} delete ||true"
+  end
+  execute "keymgr import #{zone}" do
+    command "keymgr #{zone} import-bind #{key_import_dir}/#{keyname.shellescape}.private"
+  end
+  execute "keymgr generate zsk for #{zone}" do
+    command "keymgr #{zone} generate ksk=no zsk=yes"
+  end
+end
+
+directory key_import_dir do
+  action :delete
 end
 
 service 'knot' do
@@ -112,8 +136,14 @@ end
 
 pf_snippet 'knot' do
   content <<~PF
-    # dns redirect to knot on non-standard port
-    pass in proto { udp tcp } to port domain rdr-to 127.0.0.1 port #{node[:knot_localhost_port]}
-    pass in proto { udp tcp } to port domain rdr-to ::1 port #{node[:knot_localhost_port]}
+    pass in proto { udp tcp } to port domain
   PF
 end
+
+# pf_snippet 'knot' do
+#   content <<~PF
+#     # dns redirect to knot on non-standard port
+#     pass in proto { udp tcp } to port domain rdr-to 127.0.0.1 port #{node[:knot_localhost_port]}
+#     pass in proto { udp tcp } to port domain rdr-to ::1 port #{node[:knot_localhost_port]}
+#   PF
+# end

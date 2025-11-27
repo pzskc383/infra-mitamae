@@ -15,10 +15,7 @@ Dir.glob("cookbooks/openbsd_server/files/**/*.*").each do |fn|
 end
 
 template "/etc/hostname.vio0"
-
-file "/etc/mygate" do
-  content "#{node[:network_setup][:v4][:default_gateway]}"
-end
+template "/etc/mygate"
 
 file "/etc/resolv.conf" do
   mode "0644"
