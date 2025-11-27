@@ -3,7 +3,7 @@
 node[:mail_domains] ||= {}
 node[:mail_admin_aliases] ||= %w[MAILER-DAEMON postmaster hostmaster abuse
                                  reports operator www security root manager
-                                 dumper noc hostmaster webmaster]
+                                 dumper noc webmaster]
 
 # Determine mail role for this host based on mail_domains configuration
 primary_domains = []

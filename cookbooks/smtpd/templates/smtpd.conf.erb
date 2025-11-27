@@ -15,15 +15,16 @@ table vdomains file:/etc/mail/vdomains
 table vusers file:/etc/mail/vusers
 table passwd passwd:/etc/mail/passwd
 
-filter "rspamd" proc-exec "filter-rspamd"
+# filter "rspamd" proc-exec "filter-rspamd"
+# listen on socket filter "rspamd"
 
-listen on socket filter "rspamd"
-
+# filter "rspamd"
 listen on all port 25 tls pki main \
-    hostname $fqdn tag MTA filter "rspamd"
-
+    hostname $fqdn tag MTA
+    
+# filter "rspamd"
 listen on all port 587 tls-require pki main \
-    hostname $fqdn tag MSA auth <passwd> mask-src filter "rspamd"
+    hostname $fqdn tag MSA auth <passwd> mask-src
 
 action "deliver" \
     mda "/usr/local/libexec/dovecot/dovecot-lda -d %{dest} -r %{rcpt} -f %{sender}" \

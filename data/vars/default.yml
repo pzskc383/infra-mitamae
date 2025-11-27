@@ -25,6 +25,7 @@ mail_domains:
       - f0rk
       - b0rsch
 
+lego_admin_email: me@pzskc383.net
 lego_certs:
   - name: wild_net
     domains:
@@ -48,13 +49,16 @@ knot_zones:
     primary: f0rk
     secondaries:
       - airstrip1
+      - b0rsch
 
   - name: b0x.pw
     primary: f0rk
     secondaries:
       - airstrip1
+      - b0rsch
 
   - name: pzskc383.dp.ua
     primary: f0rk
     secondaries:
       - airstrip1
+      - b0rsch

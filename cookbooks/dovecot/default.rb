@@ -97,27 +97,27 @@ line_in_file "/etc/dovecot/conf.d/10-mail.conf" do
 end
 
 # 10-master.conf - auth service configuration
-block_in_file "/etc/dovecot/conf.d/10-master.conf" do
-  marker_start "  # BEGIN mitamae auth-userdb"
-  marker_end "  # END mitamae auth-userdb"
+# block_in_file "/etc/dovecot/conf.d/10-master.conf" do
+#   marker_start "  # BEGIN mitamae auth-userdb"
+#   marker_end "  # END mitamae auth-userdb"
 
-  content <<~CONF
-    unix_listener auth-userdb {
-      mode = 0666
-      user  = vmail
-      group = vmail
-    }
-  CONF
-  notifies :restart, "service[dovecot]"
-end
+#   content <<~CONF
+#     unix_listener auth-userdb {
+#       mode = 0666
+#       user  = vmail
+#       group = vmail
+#     }
+#   CONF
+#   notifies :restart, "service[dovecot]"
+# end
 
-block_in_file "/etc/dovecot/conf.d/10-master.conf" do
-  marker_start "  # BEGIN mitamae extra_groups"
-  marker_end "  # END mitamae extra_groups"
+# block_in_file "/etc/dovecot/conf.d/10-master.conf" do
+#   marker_start "# BEGIN mitamae extra_groups"
+#   marker_end "# END mitamae extra_groups"
 
-  content "  extra_groups = _mailpasswd\n"
-  notifies :restart, "service[dovecot]"
-end
+#   content "extra_groups = _mailpasswd\n"
+#   notifies :restart, "service[dovecot]"
+# end
 
 # 10-auth.conf - enable passwdfile auth, disable system auth
 line_in_file "/etc/dovecot/conf.d/10-auth.conf" do

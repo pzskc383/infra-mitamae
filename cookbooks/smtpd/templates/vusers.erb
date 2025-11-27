@@ -11,7 +11,7 @@
 
 <%# admin email aliases %>
 <%- node[:mail_admin_aliases].each do |aliased| -%>
-<%= aliased %>@<%= d %> <% domain[:admin_account] %>
+<%= aliased %>@<%= d %> <%= domain[:admin_account] %>
 <% end -%>
 
 <%- end -%>

@@ -24,21 +24,16 @@ key:
 
 remote:
 <% @hosts.each do |hostname, host_data| -%>
-<% next if hostname == @current_host -%>
   - id: <%= hostname %>
     address: <%= host_data[:v4] %>
-    address: <%= host_data[:v6] %>
     key: tsig-default
 <% end -%>
 
 acl:
-  - id: local_nsupdate
-    address: [127.0.0.1, ::1]
+  - id: lego_nsupdate
+    address: [<%= node[:network_setup][:v4][:address] %>, <%= node[:network_setup][:v6][:address] %>]
     action: update
-    update-type: [TXT]
-    update-owner: name
-    update-owner-match: equal
-    update-owner-name: [ _acme_challenge ]
+    key: tsig-default
 
 policy:
   - id: sane
@@ -50,7 +45,7 @@ policy:
     nsec3: on
     nsec3-iterations: 0
     nsec3-salt-length: 0
-    signing-threads: 1
+    signing-threads: 2
     zsk-lifetime: 60d
     rrsig-lifetime: 14d
     zone-max-ttl: 24h
@@ -67,7 +62,7 @@ template:
     journal-content: all
     dnssec-signing: on
     dnssec-policy: sane
-    acl: local_nsupdate
+    acl: lego_nsupdate
 
   - id: slave
     storage: "/var/db/knot/zones"

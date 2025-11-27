@@ -97,32 +97,56 @@ end
 key_import_dir = "/var/db/knot/keys-import"
 directory key_import_dir
 
+define :knot_domain_ksk, ksk: nil do
+  zone = params[:zone]
+  keyname = format("K%s.+013+%05d", zone, params[:ksk][:keytag])
+
+  local_ruby_block "keymgr import #{zone}" do
+    not_if "keymgr #{zone} list |grep ZSK"
+    block do
+      file "#{key_import_dir}/#{keyname}.private" do
+        content params[:ksk][:priv]
+        sensitive true
+        group "_knot"
+        mode "0640"
+      end
+
+      file "#{key_import_dir}/#{keyname}.key" do
+        content "#{zone}. IN #{params[:ksk][:dnskey]}"
+        group "_knot"
+        mode "0640"
+      end
+
+      command "keymgr #{zone} import-bind #{key_import_dir}/#{keyname.shellescape}.private"
+
+      %w[private key].each do |ext|
+        file "#{key_import_dir}/#{keyname}.#{ext}" do
+          action :delete
+        end
+      end
+    end
+  end
+end
+
 node[:knot_dnssec].each do |dnskey|
   next unless local_zones.include? dnskey[:zone]
 
-  zone = dnskey[:zone]
-  keyname = format("K%s.+013+%05d", zone, dnskey[:ksk][:keytag])
-
-  file "#{key_import_dir}/#{keyname}.private" do
-    content dnskey[:ksk][:priv]
-    sensitive true
-    group "_knot"
-    mode "0640"
-  end
-  file "#{key_import_dir}/#{keyname}.key" do
-    content "#{zone}. IN #{dnskey[:ksk][:dnskey]}"
-    group "_knot"
-    mode "0640"
+  knot_domain_ksk dnskey[:zone] do
+    ksk dnskey[:ksk]
   end
 
   execute "keymgr cleanup #{zone}" do
-    command "keymgr #{zone} list|cut -f1 -d' '|grep -vF 'KSK' |xargs -n1 keymgr #{zone} delete ||true"
+    # remove all but first key of each type
+    command <<~CMD
+      keymgr #{zone} list|grep -F KSK|sed 1d |awk '{print $1}'|xargs -n1 keymgr #{zone} delete
+      keymgr #{zone} list|grep -F ZSK|sed 1d |awk '{print $1}'|xargs -n1 keymgr #{zone} delete
+    CMD
+    only_if "test $(keymgr #{zone} list |wc -) -gt 2"
   end
-  execute "keymgr import #{zone}" do
-    command "keymgr #{zone} import-bind #{key_import_dir}/#{keyname.shellescape}.private"
-  end
+
   execute "keymgr generate zsk for #{zone}" do
     command "keymgr #{zone} generate ksk=no zsk=yes"
+    not_if "keymgr #{zone} list |grep ZSK"
   end
 end
 

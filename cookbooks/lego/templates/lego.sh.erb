@@ -1,0 +1,51 @@
+#!/bin/sh
+
+set -e
+
+export LEGO_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory
+
+LEGO_DEBUG_CLIENT_VERBOSE_ERROR=true
+LEGO_DEBUG_ACME_HTTP_CLIENT=true
+export LEGO_DEBUG_ACME_HTTP_CLIENT LEGO_DEBUG_CLIENT_VERBOSE_ERROR
+
+LEGO_PATH=/var/lego
+LEGO_EMAIL=<%= @admin_email %>
+export LEGO_PATH LEGO_EMAIL
+
+EXEC_MODE=RAW
+EXEC_PATH=${LEGO_PATH}/hook.sh
+export EXEC_PATH EXEC_MODE
+
+EXEC_PROPAGATION_TIMEOUT=90
+EXEC_SEQUENCE_INTERVAL=90
+EXEC_POLLING_INTERVAL=6
+export EXEC_PROPAGATION_TIMEOUT EXEC_SEQUENCE_INTERVAL EXEC_POLLING_INTERVAL
+
+RFC2136_NAMESERVER=<%= node.hosts.f0rk.v4 %>
+export RFC2136_NAMESERVER
+RFC2136_TSIG_KEY=tsig-default
+RFC2136_TSIG_ALGORITHM=hmac-sha256
+RFC2136_TSIG_SECRET=<%= node[:knot_tsig_secret] %>
+export RFC2136_TSIG_KEY RFC2136_TSIG_ALGORITHM RFC2136_TSIG_SECRET
+
+
+<% @lego_certs.each do |cert| %>
+echo "=== Acquiring cert: <%= cert.name %> ==="
+lego \
+    --accept-tos \
+    --dns rfc2136 \
+<%- cert.domains.each do |domain| -%>
+    --domains="<%= domain %>" \
+<%- end -%>
+    --pem \
+    "$@" \
+    --run-hook="${LEGO_PATH}/hook.sh"
+
+# Copy to standard locations
+cp "${LEGO_PATH}/certificates/<%= cert.domains.first %>.crt" "/etc/ssl/<%= cert.domains.first %>.crt"
+cp "${LEGO_PATH}/certificates/<%= cert.domains.first %>.key" "/etc/ssl/<%= cert.domains.first %>.key"
+chmod 640 "/etc/ssl/<%= cert.domains.first %>.key"
+chown root:wheel "/etc/ssl/<%= cert.domains.first %>.key"
+<% end %>
+
+echo "=== Certificate acquisition complete ==="
