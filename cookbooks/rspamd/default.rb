@@ -93,34 +93,34 @@ directory "/var/rspamd/keys" do
   group "_rspamd"
 end
 
-# Generate DKIM/ARC keys per domain
-(node[:mail_primary_domains] || []).each do |domain|
-  # RSA-2048 key with selector 'r'
-  execute "generate DKIM RSA key for #{domain}" do
-    command <<~CMD
-      rspamadm dkim_keygen -s r -d #{domain} -t RSA -b 2048 \
-        -k /var/rspamd/keys/#{domain}.r.key -o dns \
-        > /var/rspamd/keys/#{domain}.r.zonepart && \
-      chown root:_rspamd /var/rspamd/keys/#{domain}.r.* && \
-      chmod 640 /var/rspamd/keys/#{domain}.r.*
-    CMD
-    user "root"
-    not_if "test -f /var/rspamd/keys/#{domain}.r.key"
-  end
+# # Generate DKIM/ARC keys per domain
+# (node.mail_primary_domains || []).each do |domain|
+#   # RSA-2048 key with selector 'r'
+#   execute "generate DKIM RSA key for #{domain}" do
+#     command <<~CMD
+#       rspamadm dkim_keygen -s r -d #{domain} -t RSA -b 2048 \
+#         -k /var/rspamd/keys/#{domain}.r.key -o dns \
+#         > /var/rspamd/keys/#{domain}.r.zonepart && \
+#       chown root:_rspamd /var/rspamd/keys/#{domain}.r.* && \
+#       chmod 640 /var/rspamd/keys/#{domain}.r.*
+#     CMD
+#     user "root"
+#     not_if "test -f /var/rspamd/keys/#{domain}.r.key"
+#   end
 
-  # ED25519 key with selector 'e'
-  execute "generate DKIM ED25519 key for #{domain}" do
-    command <<~CMD
-      rspamadm dkim_keygen -s e -d #{domain} -t ED25519 \
-        -k /var/rspamd/keys/#{domain}.e.key -o dns \
-        > /var/rspamd/keys/#{domain}.e.zonepart && \
-      chown root:_rspamd /var/rspamd/keys/#{domain}.e.* && \
-      chmod 640 /var/rspamd/keys/#{domain}.e.*
-    CMD
-    user "root"
-    not_if "test -f /var/rspamd/keys/#{domain}.e.key"
-  end
-end
+#   # ED25519 key with selector 'e'
+#   execute "generate DKIM ED25519 key for #{domain}" do
+#     command <<~CMD
+#       rspamadm dkim_keygen -s e -d #{domain} -t ED25519 \
+#         -k /var/rspamd/keys/#{domain}.e.key -o dns \
+#         > /var/rspamd/keys/#{domain}.e.zonepart && \
+#       chown root:_rspamd /var/rspamd/keys/#{domain}.e.* && \
+#       chmod 640 /var/rspamd/keys/#{domain}.e.*
+#     CMD
+#     user "root"
+#     not_if "test -f /var/rspamd/keys/#{domain}.e.key"
+#   end
+# end
 
 # Enable and start rspamd service
 service "rspamd" do

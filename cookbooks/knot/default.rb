@@ -116,7 +116,7 @@ node[:knot_dnssec].each do |dnskey|
   end
 
   execute "keymgr cleanup #{zone}" do
-    command "keymgr #{zone} list|cut -f1 -d' ' |xargs -n1 keymgr #{zone} delete ||true"
+    command "keymgr #{zone} list|cut -f1 -d' '|grep -vF 'KSK' |xargs -n1 keymgr #{zone} delete ||true"
   end
   execute "keymgr import #{zone}" do
     command "keymgr #{zone} import-bind #{key_import_dir}/#{keyname.shellescape}.private"

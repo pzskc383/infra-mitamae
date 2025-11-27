@@ -4,7 +4,6 @@ group "vmail"
 # Create vmail user
 execute "create vmail user" do
   command "useradd -g vmail -d /var/vmail -s /sbin/nologin -c 'Virtual Mail User' vmail"
-  user "root"
   not_if "id vmail"
 end
 

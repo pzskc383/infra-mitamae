@@ -19,7 +19,7 @@ mail_domains:
   b0x.pw:
     admin_account: the@b0x.pw
     catchall_account: false
-    catchall_subdomains: false    
+    catchall_subdomains: false
     servers:
       - airstrip1
       - f0rk
@@ -37,7 +37,7 @@ lego_certs:
       - pzskc383.dp.ua
       - '*.pzskc383.dp.ua'
     zone: pzskc383.dp.ua
-  
+
   - name: bare_box
     domains:
       - b0x.pw
@@ -55,7 +55,6 @@ knot_zones:
       - airstrip1
 
   - name: pzskc383.dp.ua
-    primary: airstrip1
+    primary: f0rk
     secondaries:
-      - b0rsch
-      - f0rk
+      - airstrip1

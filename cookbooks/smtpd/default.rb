@@ -75,6 +75,8 @@ template "/etc/mail/vdomains" do
   notifies :restart, "service[smtpd]"
 end
 
+::MItamae.logger.info node.inspect
+
 if mail_role == "primary"
   template "/etc/mail/vusers" do
     source "templates/vusers.erb"

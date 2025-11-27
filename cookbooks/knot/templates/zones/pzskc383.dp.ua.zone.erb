@@ -1,13 +1,10 @@
 $ORIGIN pzskc383.dp.ua.
 $TTL 30m
 
-@ IN SOA a1 hostmaster ( 1 4h 1h 2w 1h )
+@ IN SOA f0 hostmaster ( 1 4h 1h 2w 1h )
 
+@ IN NS f0
 @ IN NS a1
-@ IN NS b0
-
-a.ns IN A <%= @hosts["airstrip1"][:v4] %>
-b.ns IN A <%= @hosts["f0rk"][:v4] %>
 
 @ IN NSEC3PARAM 1 0 0 -
 
