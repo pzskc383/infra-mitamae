@@ -72,3 +72,6 @@ Style/StringLiterals:
 
 Style/FormatStringToken:
   Enabled: false
+
+Security/YAMLLoad:
+  Enabled false

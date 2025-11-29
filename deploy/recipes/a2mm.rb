@@ -1,5 +1,3 @@
-# Deployment recipe for a2mm (a2)
-
 include_recipe "cookbooks/openbsd_server/default.rb"
 include_recipe "cookbooks/pf/default.rb"
 include_recipe "cookbooks/openbsd_admin/default.rb"

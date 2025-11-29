@@ -147,7 +147,7 @@ end
 local_ruby_block "restart_smtpd" do
   action :nothing
 
-  only_if "smptd -n"
+  only_if "smtpd -n"
   block do
     service("smtpd") { action :restart }
   end

@@ -1,5 +1,3 @@
-# Deployment recipe for airstrip1 (a1)
-
 include_recipe "cookbooks/openbsd_server/default.rb"
 include_recipe "cookbooks/openbsd_com0/default.rb"
 include_recipe "cookbooks/openbsd_admin/default.rb"
