@@ -5,13 +5,19 @@ openbsd_package "vim" do
   flavor "no_x11"
 end
 
-Dir.glob("cookbooks/openbsd_server/files/**/*.*").each do |fn|
-  fn.sub!("cookbooks/openbsd_server/files", "")
-
+%w[
+  /etc/daily.local /etc/weekly.local
+  /etc/newsyslog.conf /etc/syslog.conf
+  /etc/ntpd.conf /var/unbound/etc/unbound.conf
+].each do |fn|
   remote_file fn do
-    source :auto
+    source "files/#{File.basename(fn)}"
     mode "0640"
   end
+end
+
+file "/etc/resolv.conf" do
+  mode "0644"
 end
 
 template "/etc/hostname.vio0"
@@ -23,12 +29,8 @@ template "/etc/mygate"
   end
 end
 
-file "/etc/resolv.conf" do
-  mode "0644"
-end
-
 service "unbound" do
-  action %i[enable restart]
+  action %i[enable start]
 end
 
 [
