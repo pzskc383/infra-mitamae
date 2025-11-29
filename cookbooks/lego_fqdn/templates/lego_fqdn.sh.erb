@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -eu
+
+# export LEGO_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory
+
+LEGO_DEBUG_CLIENT_VERBOSE_ERROR=true
+LEGO_DEBUG_ACME_HTTP_CLIENT=true
+export LEGO_DEBUG_ACME_HTTP_CLIENT LEGO_DEBUG_CLIENT_VERBOSE_ERROR
+
+LEGO_PATH=/var/lego
+LEGO_EMAIL=<%= @admin_email %>
+export LEGO_PATH LEGO_EMAIL
+
+EXEC_PROPAGATION_TIMEOUT=90
+EXEC_SEQUENCE_INTERVAL=90
+EXEC_POLLING_INTERVAL=6
+export EXEC_PROPAGATION_TIMEOUT EXEC_SEQUENCE_INTERVAL EXEC_POLLING_INTERVAL
+
+echo "=== Acquiring FQDN cert: <%= node.fqdn %> ==="
+lego \
+    --accept-tos \
+    --http \
+    --http.webroot /var/www/sites/fqdn/host \
+    --key-type rsa2048 \
+    --domains <%= node.fqdn %> \
+    "$@" \
+    --run-hook="${LEGO_PATH}/hook_fqdn.sh"

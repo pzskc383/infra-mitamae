@@ -2,7 +2,7 @@
 
 set -e
 
-export LEGO_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory
+# export LEGO_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory
 
 LEGO_DEBUG_CLIENT_VERBOSE_ERROR=true
 LEGO_DEBUG_ACME_HTTP_CLIENT=true
@@ -28,12 +28,12 @@ RFC2136_TSIG_ALGORITHM=hmac-sha256
 RFC2136_TSIG_SECRET=<%= node[:knot_tsig_secret] %>
 export RFC2136_TSIG_KEY RFC2136_TSIG_ALGORITHM RFC2136_TSIG_SECRET
 
-
 <% @lego_certs.each do |cert| %>
 echo "=== Acquiring cert: <%= cert.name %> ==="
 lego \
     --accept-tos \
     --dns rfc2136 \
+    --key-type rsa2048 \
 <%- cert.domains.each do |domain| -%>
     --domains="<%= domain %>" \
 <%- end -%>

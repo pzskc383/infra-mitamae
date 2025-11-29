@@ -17,6 +17,12 @@ end
 template "/etc/hostname.vio0"
 template "/etc/mygate"
 
+%w[sndiod resolvd].each do |srv|
+  service srv do
+    action %i[stop disable]
+  end
+end
+
 file "/etc/resolv.conf" do
   mode "0644"
 end

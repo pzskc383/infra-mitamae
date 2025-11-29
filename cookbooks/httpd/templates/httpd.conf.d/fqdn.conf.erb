@@ -1,0 +1,14 @@
+<%- @hosts.each do |type, addr| %>
+server "<%= addr %>" {
+    listen on $loopback port $redirect_port
+    listen on $loopback port $serve_port
+
+    log {
+        style forwarded
+        access "access.bare.log"
+        error "error.bare.log"
+    }
+    
+    root "sites/fqdn/<%= type %>"
+}
+<%- end%>

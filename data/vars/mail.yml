@@ -1,0 +1,30 @@
+mail_domains:
+  pzskc383.net:
+    admin_account: maniac@pzskc383.net
+    catchall_account: maniac@pzskc383.net
+    catchall_subdomains: true
+    servers:
+      - airstrip1
+      - b0rsch
+      - f0rk
+      - a2mm
+
+  pzskc383.dp.ua:
+    admin_account: maniac@pzskc383.net
+    catchall_account: maniac@pzskc383.net
+    catchall_subdomains: true
+    servers:
+      - airstrip1
+      - b0rsch
+      - f0rk
+      - a2mm
+
+  b0x.pw:
+    admin_account: the@b0x.pw
+    catchall_account: false
+    catchall_subdomains: false
+    servers:
+      - airstrip1
+      - f0rk
+      - b0rsch
+      - a2mm

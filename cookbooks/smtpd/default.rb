@@ -75,8 +75,6 @@ template "/etc/mail/vdomains" do
   notifies :restart, "service[smtpd]"
 end
 
-::MItamae.logger.info node.inspect
-
 if mail_role == "primary"
   template "/etc/mail/vusers" do
     source "templates/vusers.erb"
@@ -133,8 +131,8 @@ template "/etc/mail/smtpd.conf" do
     mail_role: mail_role,
     primary_domains: primary_domains,
     relay_domains: relay_domains,
-    tls_cert: node[:mail_tls_cert] || "/etc/ssl/#{node[:domain]}.crt",
-    tls_key: node[:mail_tls_key] || "/etc/ssl/#{node[:domain]}.key",
+    tls_cert: node[:mail_tls_cert] || "/etc/ssl/fqdn.crt",
+    tls_key: node[:mail_tls_key] || "/etc/ssl/fqdn.key",
     mail_domains: node[:mail_domains]
   )
   notifies :run, "local_ruby_block[restart_smtpd]"
@@ -143,6 +141,7 @@ end
 # Enable and start smtpd service
 service "smtpd" do
   action %i[enable start]
+  only_if "smtpd -n"
 end
 
 local_ruby_block "restart_smtpd" do

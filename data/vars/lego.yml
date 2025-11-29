@@ -1,0 +1,18 @@
+lego_admin_email: me@pzskc383.net
+lego_certs:
+  - name: wild_net
+    domains:
+      - pzskc383.net
+      - '*.pzskc383.net'
+    zone: pzskc383.net
+
+  - name: wild_dpua
+    domains:
+      - pzskc383.dp.ua
+      - '*.pzskc383.dp.ua'
+    zone: pzskc383.dp.ua
+
+  - name: bare_box
+    domains:
+      - b0x.pw
+    zone: b0x.pw

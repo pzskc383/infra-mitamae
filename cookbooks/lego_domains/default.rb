@@ -1,10 +1,4 @@
-openbsd_package "lego" do
-  action :install
-end
-
-directory "/var/lego" do
-  mode "0750"
-end
+include_recipe '../lego_fqdn/common.rb'
 
 remote_file "/var/lego/hook.sh" do
   source "files/hook.sh"
@@ -45,7 +39,7 @@ end
 
 cron "lego certificate renewal" do
   hour "3"
-  minute "17" # Fixed minute to avoid randomization complexity
+  minute "17"
   day "*/7"
   command "/var/lego/lego.sh renew"
 end

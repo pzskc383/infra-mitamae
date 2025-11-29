@@ -1,0 +1,20 @@
+http protocol www_tls {
+    tls { keypair <%= node.fqdn %>, edh params auto }
+<%- @domains.each do |domain| %>
+    tls { keypair <%= domain %>, edh params auto }
+<%- end %>
+
+    match header set "X-Forwarded-For" \
+        value "$REMOTE_ADDR"
+    match header set "X-Forwarded-By" \
+        value "$SERVER_ADDR:$SERVER_PORT"
+    match header set "Keep-Alive" value "$TIMEOUT"
+
+}
+
+relay www_tls {
+    listen on $ext_if port 443 tls
+    protocol www_tls
+
+    forward to <httpd> port $serve_port check http "/" host "<%= node.fqdn %>" code 200
+}

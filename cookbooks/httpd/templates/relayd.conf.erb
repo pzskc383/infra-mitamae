@@ -1,0 +1,21 @@
+include "/etc/httpd.conf.d/macro.conf"
+ext_if = vio0
+int_if = wg0
+
+prefork 2
+log state changes
+log connection
+
+table <httpd> { 127.0.0.1 }
+
+include "/etc/relayd.conf.d/http_relay.conf"
+<%- if @has_tls %>
+include "/etc/relayd.conf.d/tls_relay.conf"
+<%- end %>
+
+
+# relay int_plain {
+#     listen on $int_if port 80
+#     protocol www_plain
+#     forward to <rspamd> port 11334
+# }

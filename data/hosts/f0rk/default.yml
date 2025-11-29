@@ -3,8 +3,9 @@ properties:
     - cookbooks/openbsd_server/default.rb
     - cookbooks/pf/default.rb
     - cookbooks/openbsd_admin/default.rb
+    - cookbooks/httpd/default.rb
     - cookbooks/knot/default.rb
-    - cookbooks/lego/default.rb
+    - cookbooks/lego_fqdn/default.rb
     - cookbooks/dickd/default.rb
     - cookbooks/smtpd/default.rb
     # - cookbooks/dovecot/default.rb
