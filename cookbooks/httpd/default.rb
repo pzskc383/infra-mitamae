@@ -1,7 +1,5 @@
 # HTTPD cookbook - OpenBSD's httpd web server with relayd
 node.reverse_merge!({
-  relayd_domains: [],
-  httpd_config_files: [],
   relayd_has_fqdn_cert: false
 })
 
@@ -19,26 +17,24 @@ template '/etc/httpd.conf' do
 end
 
 node[:relayd_has_fqdn_cert] = File.exist? '/etc/ssl/fqdn.crt'
-has_tls = node[:relayd_has_fqdn_cert] || !node[:relayd_domains].empty?
-
-template '/etc/relayd.conf' do
-  source 'templates/relayd.conf.erb'
-  variables(has_tls: has_tls)
-  notifies :restart, 'service[relayd]'
-end
 
 directory '/etc/relayd.conf.d'
-
 template '/etc/relayd.conf.d/http_relay.conf' do
   source 'templates/relayd.conf.d/http_relay.conf.erb'
 end
 
-if has_tls
-  template '/etc/relayd.conf.d/tls_relay.conf' do
-    source 'templates/relayd.conf.d/tls_relay.conf.erb'
-    variables(domains: node[:relayd_domains])
-  end
+template '/etc/relayd.conf' do
+  source 'templates/relayd.conf.erb'
+  variables(has_tls: node[:relayd_has_fqdn_cert] || !node[:relayd_domains].empty?)
+  notifies :restart, 'service[relayd]'
 end
+
+template '/etc/relayd.conf.d/tls_relay.conf' do
+  source 'templates/relayd.conf.d/tls_relay.conf.erb'
+  variables(domains: node[:relayd_domains] || [])
+end
+
+include_recipe 'defines.rb'
 
 directory '/var/www/errdocs' do
   mode '0755'

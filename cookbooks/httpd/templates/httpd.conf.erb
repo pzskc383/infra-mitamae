@@ -6,7 +6,7 @@ errdocs "errdocs/"
 prefork 2
 
 <%- @config_files.each do |filename| %>
-include "<%= filename %>"
+include "/etc/httpd.conf.d/<%= filename %>"
 <%- end %>
 
 include "/etc/httpd.conf.d/fqdn.conf"

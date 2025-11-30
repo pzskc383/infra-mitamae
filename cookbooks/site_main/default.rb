@@ -16,10 +16,7 @@ directory "/var/www/sites/pzskc383"
   end
 end
 
-node[:httpd_config_files] << "redirects_pzskc383.conf"
-node[:httpd_config_files] << "main_pzskc383.conf"
-node[:relayd_domains] << "pzskc383.net"
-node[:relayd_domains] << "pzskc383.dp.ua"
-
-notify!("template[/etc/relayd.conf]") { action :create }
-notify!("template[/etc/httpd.conf]") { action :create }
+# node[:httpd_config_files] << "redirects_pzskc383.conf"
+# node[:httpd_config_files] << "main_pzskc383.conf"
+# node[:relayd_domains] << "pzskc383.net"
+# node[:relayd_domains] << "pzskc383.dp.ua"

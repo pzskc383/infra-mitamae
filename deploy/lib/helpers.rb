@@ -45,6 +45,12 @@ module DeployHelpers
     MItamae.logger.warn "Failed to load #{path}: #{e.message}"
     {}
   end
+  
+  def self.save_yaml(path, data)
+    File.open(path, 'w') do |f|
+      f.write YAML.dump(data)
+    end
+  end
 
   def self.ssh_info(hostname)
     host_config = load_host_config(hostname)
