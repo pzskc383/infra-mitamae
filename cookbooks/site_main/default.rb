@@ -5,6 +5,15 @@
   end
 end
 
+%w[cgitrc cgit-head.inc.html].each do |fn|
+  remote_file "/var/www/conf/#{fn}" do
+    source "files/cgit/#{fn}"
+    mode '0444'
+    owner 'www'
+    group 'www'
+  end
+end
+
 directory "/var/www/sites/pzskc383"
 
 %w[bg.png home.png index.html robots.txt].each do |fname|
