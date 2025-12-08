@@ -1,14 +1,12 @@
-include_recipe 'dynamic.rb'
+# PF firewall cookbook
+node.reverse_merge!({
+  pf_enable_relayd: false,
+  pf_has_local_services: ::File.exist?("/etc/pf/services.local.anchor")
+})
+
+include_recipe 'defines.rb'
 
 include_recipe '../openbsd_server/defines.rb'
-
-define :pf_conf, mode: "0600", content: nil do
-  file params[:name] do
-    mode params[:mode]
-    content params[:content] if params[:content]
-    notifies :run, "execute[reload_pf]"
-  end
-end
 
 [
   "net.inet.ip.forwarding=1",
@@ -35,31 +33,42 @@ end
 
 %w[hostname.pflog0 hostname.pflog1].each do |f|
   pf_conf "/etc/#{f}" do
-    mode "0600"
     content "up"
   end
 end
 
-pf_conf "/etc/pf.conf" do
+template "/etc/pf.conf" do
   mode "0600"
+  notifies :run, "execute[reload_pf]"
 end
 
 directory "/etc/pf" do
   mode "0700"
 end
 
-pf_conf "/etc/pf/martians.table" do
-  mode "0600"
-end
+pf_conf "/etc/pf/martians.table"
 
 pf_conf "/etc/pf/banned.table" do
-  mode "0600"
   content ""
   not_if "stat /etc/pf/banned.table"
 end
 
 %w[block.anchor icmp.anchor scrub.anchor outgoing.anchor].each do |f|
-  pf_conf "/etc/pf/#{f}" do
-    mode "0600"
-  end
+  pf_conf "/etc/pf/#{f}"
+end
+
+link "/etc/rc.d/pflogd1" do
+  to "/etc/rc.d/pflogd"
+end
+
+service "pflogd1" do
+  action [:enable]
+end
+
+execute "rcctl set pflogd1 flags '-i pflog1'" do
+  not_if "grep -qE 'pflogd1.*pflog1' /etc/rc.conf.local"
+end
+
+service "pflogd1" do
+  action [:start]
 end

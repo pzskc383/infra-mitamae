@@ -48,6 +48,6 @@ end
   end
 end
 
-include_recipe "../pf/dynamic.rb"
+include_recipe "../pf/defines.rb"
 
 pf_snippet "pass proto tcp to port 38322"

@@ -1,6 +1,7 @@
 # HTTPD cookbook - OpenBSD's httpd web server with relayd
 node.reverse_merge!({
-  relayd_has_fqdn_cert: false
+  relayd_has_fqdn_cert: false,
+  httpd_config_files: []
 })
 
 directory "/etc/httpd.conf.d"
@@ -33,8 +34,6 @@ template '/etc/relayd.conf.d/tls_relay.conf' do
   source 'templates/relayd.conf.d/tls_relay.conf.erb'
   variables(domains: node[:relayd_domains] || [])
 end
-
-include_recipe 'defines.rb'
 
 directory '/var/www/errdocs' do
   mode '0755'
@@ -83,10 +82,13 @@ service 'relayd' do
   only_if "relayd -n"
 end
 
-include_recipe "../pf/dynamic.rb"
+include_recipe "../pf/defines.rb"
 pf_snippet 'httpd' do
   content <<~PF
     # http and https services
     pass proto tcp to port { http https }
   PF
 end
+
+node[:pf_enable_relayd] = true
+notify!("template[/etc/pf.conf]") { action :create }

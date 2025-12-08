@@ -17,15 +17,22 @@ table <banned> persist counters file "/etc/pf/banned.table"
 anchor "scrub" on egress
 load anchor "scrub" from "/etc/pf/scrub.anchor"
 
+<%- if node[:pf_enable_relayd] -%>
 anchor "relayd/*"
+<%- end -%>
 
 anchor "block/default" on egress
 anchor "block/in-quick-bad" in on egress
 load anchor "block" from "/etc/pf/block.anchor"
 
 anchor "services" in on egress
+<%- if node[:pf_has_local_services] -%>
 anchor "services/local" in on egress
+<%- end -%>
 load anchor "services" from "/etc/pf/services.anchor"
+<%- if node[:pf_has_local_services] -%>
+load anchor "services/local" from "/etc/pf/services.local.anchor"
+<%- end -%>
 
 anchor "icmp/ipv4-icmp" on egress inet proto icmp
 anchor "icmp/ipv6-icmp" on egress inet6 proto icmp6

@@ -153,7 +153,7 @@ local_ruby_block "restart_smtpd" do
   end
 end
 
-include_recipe "../pf/dynamic.rb"
+include_recipe "../pf/defines.rb"
 
 # Add PF firewall rules for mail services
 pf_snippet "mail" do

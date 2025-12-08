@@ -1,8 +1,6 @@
-# PF firewall cookbook
 node.reverse_merge!({
-  pf_snippets: []
+  pf_snippets: [],
 })
-
 # check and reload pf config
 execute "reload_pf" do
   action :nothing
@@ -23,4 +21,21 @@ define :pf_snippet, content: nil do
   node[:pf_snippets] << (params[:content] || params[:name])
 
   notify!("template[pf_dynamic_services]") { action :create }
+end
+
+define :pf_conf, content: nil do
+    def_mode = "0600"
+    if params[:content]
+      file params[:name] do
+        mode def_mode
+        content params[:content]
+        notifies :run, "execute[reload_pf]"
+      end
+    else
+      remote_file params[:name] do
+        mode def_mode
+        source "files/#{::File.basename(params[:name])}"
+        notifies :run, "execute[reload_pf]"
+      end
+    end
 end
