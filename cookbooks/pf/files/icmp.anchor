@@ -1,4 +1,4 @@
-log_icmp = "" # "log" or ""
+log_icmp = "log(to pflog1)" # "log" or ""
 ratelimit_icmp = "max-pkt-rate 100/10"
 
 anchor "ipv4-icmp" inet proto icmp {

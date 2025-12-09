@@ -35,7 +35,7 @@ define :pf_conf, content: nil do
       remote_file params[:name] do
         mode def_mode
         source "files/#{::File.basename(params[:name])}"
-        notifies :run, "execute[reload_pf]"
+        # notifies :run, "execute[reload_pf]"
       end
     end
 end

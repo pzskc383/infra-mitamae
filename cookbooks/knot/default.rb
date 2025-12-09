@@ -1,6 +1,5 @@
 # Knot DNS cookbook
 node.reverse_merge!({
-  knot_localhost_port: 17_053,
   knot_zones: [],
   knot_zone_snippets: [],
   knot_dnssec: []
@@ -8,7 +7,6 @@ node.reverse_merge!({
 
 node.validate! do
   {
-    knot_localhost_port: integer,
     knot_zone_snippets: array_of({
       zone: string,
       content: array_of(string)
@@ -158,11 +156,3 @@ pf_snippet 'knot' do
     pass in proto { udp tcp } to port domain
   PF
 end
-
-# pf_snippet 'knot' do
-#   content <<~PF
-#     # dns redirect to knot on non-standard port
-#     pass in proto { udp tcp } to port domain rdr-to 127.0.0.1 port #{node[:knot_localhost_port]}
-#     pass in proto { udp tcp } to port domain rdr-to ::1 port #{node[:knot_localhost_port]}
-#   PF
-# end

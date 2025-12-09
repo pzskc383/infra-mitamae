@@ -36,12 +36,6 @@ end
     content "up"
   end
 end
-
-template "/etc/pf.conf" do
-  mode "0600"
-  notifies :run, "execute[reload_pf]"
-end
-
 directory "/etc/pf" do
   mode "0700"
 end
@@ -50,12 +44,18 @@ pf_conf "/etc/pf/martians.table"
 
 pf_conf "/etc/pf/banned.table" do
   content ""
-  not_if "stat /etc/pf/banned.table"
+  not_if "test -f /etc/pf/banned.table"
 end
 
 %w[block.anchor icmp.anchor scrub.anchor outgoing.anchor].each do |f|
   pf_conf "/etc/pf/#{f}"
 end
+
+template "/etc/pf.conf" do
+  mode "0600"
+  notifies :run, "execute[reload_pf]"
+end
+
 
 link "/etc/rc.d/pflogd1" do
   to "/etc/rc.d/pflogd"

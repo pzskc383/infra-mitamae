@@ -34,9 +34,9 @@ node[:mail_role] = mail_role
 node[:mail_primary_domains] = primary_domains
 node[:mail_relay_domains] = relay_domains
 
-::MItamae.logger.info "Mail role: #{mail_role}"
-::MItamae.logger.info "Primary domains: #{primary_domains.join(', ')}" unless primary_domains.empty?
-::MItamae.logger.info "Relay domains: #{relay_domains.join(', ')}" unless relay_domains.empty?
+# ::MItamae.logger.info "Mail role: #{mail_role}"
+# ::MItamae.logger.info "Primary domains: #{primary_domains.join(', ')}" unless primary_domains.empty?
+# ::MItamae.logger.info "Relay domains: #{relay_domains.join(', ')}" unless relay_domains.empty?
 
 # fqdn+fcrdns
 template "/etc/mail/mailname" do

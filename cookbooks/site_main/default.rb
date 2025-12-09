@@ -16,7 +16,7 @@ end
 
 directory "/var/www/sites/pzskc383"
 
-%w[bg.png home.png index.html robots.txt].each do |fname|
+%w[bg.png home.png index.html robots.txt favicon.ico].each do |fname|
   remote_file "/var/www/sites/pzskc383/#{fname}" do
     source "files/#{fname}"
     mode '0644'
@@ -24,6 +24,8 @@ directory "/var/www/sites/pzskc383"
     group 'daemon'
   end
 end
+
+include_recipe "compile_chroma.rb"
 
 # node[:httpd_config_files] << "redirects_pzskc383.conf"
 # node[:httpd_config_files] << "main_pzskc383.conf"

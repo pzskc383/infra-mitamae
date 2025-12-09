@@ -17,6 +17,5 @@ knot_zones:
   - name: pzskc383.dp.ua
     primary: f0rk
     secondaries:
-      - airstrip1
       - b0rsch
       - a2mm

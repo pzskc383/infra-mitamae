@@ -16,6 +16,7 @@ $TTL 30m
 <%= @hosts[host][:dns_shortname] %> IN A <%= @hosts[host][:v4] %>
 <%= @hosts[host][:dns_shortname] %> IN AAAA <%= @hosts[host][:v6] %>
 <%= host %> IN CNAME <%= @hosts[host][:dns_shortname] %>
+<%= host %> IN TXT "v=spf1 a -all"
 <% end -%>
 
 @ IN A <%= @hosts["airstrip1"][:v4] %>
@@ -30,9 +31,6 @@ img IN CNAME a1
 @ IN MX 10 b0
 
 @ IN TXT "v=spf1 mx -all"
-a1 IN TXT "v=spf1 a -all"
-b0 IN TXT "v=spf1 a -all"
-x1 IN TXT "v=spf1 a -all"
 
 _dmarc IN TXT " v=DMARC1; p=quarantine; rua=mailto:abuse@pzskc383.dp.ua; ruf=mailto:abuse@pzskc383.dp.ua; sp=quarantine; fo=0; pct=100; adkim=s; aspf=s"
 e._domainkey IN TXT "v=DKIM1;k=ed25519;" "p=Im9uln2exQo3qv4VInljp4uEMrmDV9LDulx+vB11Ey8="
