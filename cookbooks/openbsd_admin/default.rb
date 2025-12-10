@@ -39,7 +39,10 @@ end
 {
   "Port" => "38322",
   "PermitRootLogin" => "prohibit-password",
-  "PasswordAuthentication" => "no"
+  "PasswordAuthentication" => "no",
+  "KexAlgorithms" => "curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256", 
+  "MACs" => "umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com", 
+  "HostKeyAlgorithms" => "ssh-ed25519,rsa-sha2-256,rsa-sha2-512", 
 }.each do |k, v|
   config_set "/etc/ssh/sshd_config" do
     key k

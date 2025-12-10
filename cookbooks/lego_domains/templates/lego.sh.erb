@@ -41,11 +41,22 @@ lego \
     "$@" \
     --run-hook="${LEGO_PATH}/hook.sh"
 
+
 # Copy to standard locations
 cp "${LEGO_PATH}/certificates/<%= cert.domains.first %>.crt" "/etc/ssl/<%= cert.domains.first %>.crt"
-cp "${LEGO_PATH}/certificates/<%= cert.domains.first %>.key" "/etc/ssl/<%= cert.domains.first %>.key"
-chmod 640 "/etc/ssl/<%= cert.domains.first %>.key"
-chown root:wheel "/etc/ssl/<%= cert.domains.first %>.key"
+cp "${LEGO_PATH}/certificates/<%= cert.domains.first %>.key" "/etc/ssl/private/<%= cert.domains.first %>.key"
+chmod 640 "/etc/ssl/<%= cert.domains.first %>.crt" "/etc/ssl/private/<%= cert.domains.first %>.key"
+chown root:wheel "/etc/ssl/<%= cert.domains.first %>.crt" "/etc/ssl/private/<%= cert.domains.first %>.key"
 <% end %>
+
+if [ -f /etc/ssl/.needs_restart ]; then
+    rm -f /etc/ssl/.needs_restart
+    for svc in httpd relayd dovecot smtpd; do
+        if rcctl check "$svc" >/dev/null 2>&1; then
+            _log "Restarting $svc"
+            rcctl restart "$svc" || _log "Failed to restart $svc"
+        fi
+    done
+fi
 
 echo "=== Certificate acquisition complete ==="

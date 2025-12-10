@@ -32,7 +32,7 @@ execute "acquire initial certificates" do
   #   certs = node[:lego_certs] || []
   #   certs.empty? || certs.all? do |cert|
   #     domain = cert[:domains].first
-  #     File.exist?("/etc/ssl/#{domain}.crt") && File.exist?("/etc/ssl/#{domain}.key")
+  #     File.exist?("/etc/ssl/#{domain}.crt") && File.exist?("/etc/ssl/private/#{domain}.key")
   #   end
   # end
 end

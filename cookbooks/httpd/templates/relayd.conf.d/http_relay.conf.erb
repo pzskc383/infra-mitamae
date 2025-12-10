@@ -12,5 +12,5 @@ relay www_plain {
     listen on $ext_if port 80
     protocol www_plain
 
-    forward to <httpd> port $redirect_port check http "/" host "<%= node.fqdn %>" code 200
+    forward to <httpd> port $redirect_port check http "/health" host "_healthcheck" code 200
 }

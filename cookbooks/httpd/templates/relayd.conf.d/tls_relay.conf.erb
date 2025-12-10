@@ -16,5 +16,5 @@ relay www_tls {
     listen on $ext_if port 443 tls
     protocol www_tls
 
-    forward to <httpd> port $serve_port check http "/" host "<%= node.fqdn %>" code 200
+    forward to <httpd> port $redirect_port check http "/health" host "_healthcheck" code 200
 }

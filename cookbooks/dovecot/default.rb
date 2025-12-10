@@ -26,7 +26,7 @@ end
 
 # Configure dovecot using line_in_file to preserve defaults
 tls_cert = node[:mail_tls_cert] || "/etc/ssl/#{node[:domain]}.crt"
-tls_key = node[:mail_tls_key] || "/etc/ssl/#{node[:domain]}.key"
+tls_key = node[:mail_tls_key] || "/etc/ssl/private/#{node[:domain]}.key"
 
 # 10-ssl.conf
 line_in_file "/etc/dovecot/conf.d/10-ssl.conf" do

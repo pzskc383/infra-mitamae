@@ -10,9 +10,8 @@ knot_zones:
   - name: b0x.pw
     primary: f0rk
     secondaries:
-      - airstrip1
-      - b0rsch
       - a2mm
+      - airstrip1
 
   - name: pzskc383.dp.ua
     primary: f0rk

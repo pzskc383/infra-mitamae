@@ -1,9 +1,8 @@
 # OpenSMTPD mail server cookbook
-
 node[:mail_domains] ||= {}
-node[:mail_admin_aliases] ||= %w[MAILER-DAEMON postmaster hostmaster abuse
-                                 reports operator www security root manager
-                                 dumper noc webmaster]
+node[:mail_admin_aliases] ||= %w[MAILER-DAEMON postmaster hostmaster
+                                 operator www security manager dumper 
+                                 noc webmaster]
 
 # Determine mail role for this host based on mail_domains configuration
 primary_domains = []
@@ -15,8 +14,12 @@ node[:mail_domains].each do |domain, config|
   next if servers.empty?
 
   if servers[0] == node[:hostname]
+    config[:redirects] ||= []
+    config[:accounts] ||= []
+
     primary_domains << domain
-    (config[:accounts] || []).each do |acc|
+
+    config[:accounts].each do |acc|
       mail_accounts << {
         email: "#{acc[:username]}@#{domain}",
         password_hash: acc[:password_hash]
@@ -35,6 +38,7 @@ node[:mail_primary_domains] = primary_domains
 node[:mail_relay_domains] = relay_domains
 
 # ::MItamae.logger.info "Mail role: #{mail_role}"
+# ::MItamae.logger.info "Mail accounts: #{mail_accounts.join(', ')}" unless mail_accounts.empty?
 # ::MItamae.logger.info "Primary domains: #{primary_domains.join(', ')}" unless primary_domains.empty?
 # ::MItamae.logger.info "Relay domains: #{relay_domains.join(', ')}" unless relay_domains.empty?
 
@@ -132,7 +136,7 @@ template "/etc/mail/smtpd.conf" do
     primary_domains: primary_domains,
     relay_domains: relay_domains,
     tls_cert: node[:mail_tls_cert] || "/etc/ssl/fqdn.crt",
-    tls_key: node[:mail_tls_key] || "/etc/ssl/fqdn.key",
+    tls_key: node[:mail_tls_key] || "/etc/ssl/private/fqdn.key",
     mail_domains: node[:mail_domains]
   )
   notifies :run, "local_ruby_block[restart_smtpd]"
@@ -159,6 +163,7 @@ include_recipe "../pf/defines.rb"
 pf_snippet "mail" do
   content <<~PF
     # mail services
-    pass in proto tcp to port { smtp #{'submission imaps' if mail_role == 'primary'} }
+    table <spamd> persist
+    pass in proto tcp to port { smtp#{' submission imaps' if mail_role == 'primary'} }
   PF
 end

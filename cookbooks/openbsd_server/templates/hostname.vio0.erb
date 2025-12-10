@@ -1,0 +1,7 @@
+inet <%= node.network_setup.v4.address %>
+<%- if node.network_setup.v6.use_slaacd -%>
+# inet6 autoconf -soii -temporary eui64
+inet6 <%= node.network_setup.v6.address %>
+<%- else -%>
+inet6 <%= node.network_setup.v6.address %>
+<%- end -%>

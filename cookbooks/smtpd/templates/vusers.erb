@@ -1,7 +1,6 @@
 # virtual user mappings
 <% @domains.each do |d, domain| -%>
-
-<%# domain-wide catchall forwarding #%>
+# domain-wide catchall forwarding for <%= d %>
 <%- if domain[:catchall_account] -%>
 @<%= d %> <%= domain[:catchall_account] %>
 <% end -%>
@@ -9,14 +8,19 @@
 @*.<%= d %> <%= domain[:catchall_account] %>
 <% end -%>
 
-<%# admin email aliases %>
+# admin email aliases for <%= d %>
 <%- node[:mail_admin_aliases].each do |aliased| -%>
 <%= aliased %>@<%= d %> <%= domain[:admin_account] %>
 <% end -%>
 
-<%- end -%>
+# email redirects for <%= d %>
+<%- domain[:redirects] ||= [] -%>
+<%- domain[:redirects].each do |rdr| -%>
+<%= rdr.keys.first %>@<%= d %> <%= rdr.values.first %>
+<% end -%>
+<% end -%>
 
-<%# real users as virtual email accounts %>
-<%- @accounts.each do |acc| -%>
+# real users as virtual email accounts
+<%- @accounts.uniq.each do |acc| -%>
 <%= acc[:email] %> vmail
 <% end -%>

@@ -21,7 +21,7 @@ echo "=== Acquiring FQDN cert: <%= node.fqdn %> ==="
 lego \
     --accept-tos \
     --http \
-    --http.webroot /var/www/sites/fqdn/host \
+    --http.webroot /var/www/htdocs/fqdn/host \
     --key-type rsa2048 \
     --domains <%= node.fqdn %> \
     "$@" \

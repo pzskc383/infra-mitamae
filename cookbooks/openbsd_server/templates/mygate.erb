@@ -1,0 +1,4 @@
+<%= node.network_setup.v4.gateway %>
+<%- unless node.network_setup.v6.use_slaacd -%>
+<%= node.network_setup.v6.gateway %>
+<%- end %>

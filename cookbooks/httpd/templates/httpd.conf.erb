@@ -3,13 +3,20 @@ loopback = "127.0.0.1"
 
 errdocs "errdocs/"
 
-prefork 2
+prefork 5
 
 <%- @config_files.each do |filename| %>
 include "/etc/httpd.conf.d/<%= filename %>"
 <%- end %>
 
 include "/etc/httpd.conf.d/fqdn.conf"
+
+server "_healthcheck" {
+    listen on $loopback port $redirect_port
+    listen on $loopback port $serve_port
+
+    block return 200
+}
 
 types {
     include "/usr/share/misc/mime.types"

@@ -10,13 +10,6 @@ server "main" {
         error "error.main.log"
     }
 
-    # autoconf on main domain
-    location "/.well-known/autoconfig/mail/config-v1.1.xml" {
-        root "/mail/pzskc383.net/autoconfig"
-        request strip 3
-        pass
-    }
-
     # cgit static
     location match "^/code/cgit/%w+%.%w+$" {
         log {
@@ -96,7 +89,7 @@ server "main" {
     }
 
     # cgit
-    location "/code/*" {
+    location "/code*" {
         root "/cgi-bin/cgit.cgi"
         log {
             style forwarded
@@ -110,6 +103,6 @@ server "main" {
     }
 
     location * {
-        root "/sites/pzskc383"
+        root "/htdocs/pzskc383"
     }
 }

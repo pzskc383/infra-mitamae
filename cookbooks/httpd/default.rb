@@ -48,7 +48,7 @@ remote_file "/var/www/errdocs/err.html" do
   group 'daemon'
 end
 
-directory "/var/www/sites/fqdn"
+directory "/var/www/htdocs/fqdn"
 fqdn_hosts = {
   "v4" => node[:network_setup][:v4][:address],
   "v6" => node[:network_setup][:v6][:address],
@@ -56,8 +56,8 @@ fqdn_hosts = {
 }
 
 fqdn_hosts.each do |type, value|
-  directory "/var/www/sites/fqdn/#{type}"
-  template "/var/www/sites/fqdn/#{type}/index.html" do
+  directory "/var/www/htdocs/fqdn/#{type}"
+  template "/var/www/htdocs/fqdn/#{type}/index.html" do
     source "templates/site.fqdn/hello.html.erb"
     variables(hostname: value)
     mode "0644"
@@ -91,4 +91,5 @@ pf_snippet 'httpd' do
 end
 
 node[:pf_enable_relayd] = true
-notify!("template[/etc/pf.conf]") { action :create }
+
+notify!("template[pf_dynamic_services]") { action :create }

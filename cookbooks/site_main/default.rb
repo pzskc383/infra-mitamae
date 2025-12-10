@@ -14,10 +14,10 @@ end
   end
 end
 
-directory "/var/www/sites/pzskc383"
+directory "/var/www/htdocs/pzskc383"
 
 %w[bg.png home.png index.html robots.txt favicon.ico].each do |fname|
-  remote_file "/var/www/sites/pzskc383/#{fname}" do
+  remote_file "/var/www/htdocs/pzskc383/#{fname}" do
     source "files/#{fname}"
     mode '0644'
     owner 'root'

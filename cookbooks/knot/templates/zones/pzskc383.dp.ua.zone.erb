@@ -12,15 +12,27 @@ $TTL 30m
 @ IN CAA 128 issuewild "letsencrypt.org;validationmethods=dns-01"
 @ IN CAA 128 iodef "mailto:abuse@pzskc383.dp.ua"
 
-<% ["airstrip1", "b0rsch", "f0rk"].each do |host| -%>
-<%= @hosts[host][:dns_shortname] %> IN A <%= @hosts[host][:v4] %>
-<%= @hosts[host][:dns_shortname] %> IN AAAA <%= @hosts[host][:v6] %>
-<%= host %> IN CNAME <%= @hosts[host][:dns_shortname] %>
-<%= host %> IN TXT "v=spf1 a -all"
+<% @hosts.each do |hostname, data| -%>
+<%= data[:dns_shortname] %> IN A <%= data[:v4] %>
+<%= data[:dns_shortname] %> IN AAAA <%= data[:v6] %>
 <% end -%>
 
 @ IN A <%= @hosts["airstrip1"][:v4] %>
 @ IN AAAA <%= @hosts["airstrip1"][:v6] %>
+
+<% @hosts.each do |hostname, data| -%>
+<%= hostname %> IN CNAME <%= data[:dns_shortname] %>
+<% end -%>
+
+@ IN MX 10 a1
+@ IN MX 20 b0
+
+@ IN TXT "v=spf1 mx -all"
+<% @hosts.each do |hostname, data| -%>
+<%= data[:dns_shortname] %> IN TXT "v=spf1 a -all"
+<%= hostname %> IN TXT "v=spf1 a -all"
+<% end -%>
+
 
 www IN CNAME a1
 i IN CNAME a1

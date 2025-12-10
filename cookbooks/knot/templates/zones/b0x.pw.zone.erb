@@ -1,20 +1,52 @@
 $ORIGIN b0x.pw.
 $TTL 30m
 
-@ IN SOA a.ns root ( 1 4h 1h 2w 1h )
+@ IN SOA the.main root.post ( 1 4h 1h 2w 1h )
 
-@ IN NS a.ns
-@ IN NS b.ns
-
-a.ns IN A <%= @hosts[:f0rk][:v4] %>
-b.ns IN A <%= @hosts[:airstrip1][:v4] %>
+@ IN NS the.main
+@ IN NS the.far
 
 @ IN A <%= @hosts[:f0rk][:v4] %>
 @ IN AAAA <%= @hosts[:f0rk][:v6] %>
+
+the.main IN A <%= @hosts[:f0rk][:v4] %>
+the.main IN AAAA <%= @hosts[:f0rk][:v6] %>
+the.old IN A <%= @hosts[:airstrip1][:v4] %>
+the.old IN AAAA <%= @hosts[:airstrip1][:v6] %>
+the.far IN A <%= @hosts[:a2mm][:v4] %>
+the.far IN AAAA <%= @hosts[:a2mm][:v6] %>
+the.smart IN A <%= @hosts[:ex1t][:v4] %>
+the.smart IN AAAA <%= @hosts[:ex1t][:v6] %>
+the.dead IN A <%= @hosts[:b0rsch][:v4] %>
+the.dead IN AAAA <%= @hosts[:b0rsch][:v6] %>
+
+<%# also s.a1 and x.airstrip1 records %>
+<%- @hosts.each do |hostname, data| -%>
+s.<%= data[:dns_shortname] %> IN A <%= data[:v4] %>
+s.<%= data[:dns_shortname] %> IN AAAA <%= data[:v6] %>
+
+x.<%= hostname.to_s %> IN A <%= data[:v4] %>
+x.<%= hostname.to_s %> IN AAAA <%= data[:v6] %>
+
+<%- end %>
 
 @ IN NSEC3PARAM 1 0 0 -
 
 @ IN CAA 128 issue "letsencrypt.org;validationmethods=dns-01"
 @ IN CAA 128 issuewild "letsencrypt.org;validationmethods=dns-01"
+@ IN CAA 128 iodef "mailto:reports.acme@post.b0x.pw"
 
 @ IN MX 0 .
+@ IN TXT "v=spf1 -all"
+
+post IN MX 10 the.main
+post IN MX 20 the.far
+post IN TXT "v=spf1 mx -all"
+
+_dmarc IN TXT " v=DMARC1; p=quarantine; rua=mailto:reports.dmarc.a@post.b0x.pw; ruf=mailto:reports.dmarc.f@post.b0x.pw; sp=quarantine; fo=0; pct=100; adkim=s; aspf=s"
+_smtp._tls IN TXT "v=TLSRPTv1; rua=mailto:reports.tls@post.b0x.pw"
+
+the.main IN SSHFP 4 2 44bdb60a2540ac1034fae5e85b7d20fce866d8beb18bc92c263407be8e0c008e
+the.old IN SSHFP 4 2 06b503cdb485096716ac1f13249710d0bf85a1ab5dfd938b5233639042a0d058
+the.dead IN SSHFP 4 2 27c335018f315244051f13c9cbfa1904894fb698906ef0db378c1acb483078b6
+the.far IN SSHFP 4 2 b286bd1c4d4284da38cae475a7865da4d3ca9dca766b55d1e6c6f115a532a136

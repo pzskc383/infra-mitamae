@@ -19,12 +19,13 @@ mail_domains:
       - f0rk
       - a2mm
 
-  b0x.pw:
-    admin_account: the@b0x.pw
+  post.b0x.pw:
+    admin_account: owner@post.b0x.pw
     catchall_account: false
     catchall_subdomains: false
+    redirects:
+      - abuse: owner@post.b0x.pw
+      - reports: owner@post.b0x.pw
     servers:
-      - airstrip1
       - f0rk
-      - b0rsch
       - a2mm

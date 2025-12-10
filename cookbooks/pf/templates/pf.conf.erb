@@ -1,3 +1,4 @@
+# options
 set block-policy drop
 set debug warn
 set loginterface egress
@@ -11,29 +12,71 @@ set fingerprints "/etc/pf.os"
 set limit { states 100000, src-nodes 100000, table-entries 400000 }
 set skip on { lo0 }
 
-table <martians> const persist counters file "/etc/pf/martians.table"
+table <bogons4> const persist {
+    0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, \
+    172.16.0.0/12, 192.0.0.0/24, 192.0.0.0/29, 192.0.0.8/32, 192.0.0.9/32, \
+    192.0.0.10/32, 192.0.0.170/32, 192.0.2.0/24, 192.31.196.0/24, \
+    192.52.193.0/24, 192.88.99.0/24, 192.88.99.2/32, 192.168.0.0/16, \
+    192.175.48.0/24, 198.18.0.0/15, 198.51.100.0/24, 203.0.113.0/24, \
+    240.0.0.0/4, 255.255.255.255/32 
+}
+table <bogons6> const persist {
+    ::1/128, ::/128, ::ffff:0:0/96, 64:ff9b::/96, 64:ff9b:1::/48, 100::/64, \
+    100:0:0:1::/64, 2001::/23, 2001::/32, 2001:1::1/128, 2001:1::2/128, \
+    2001:1::3/128, 2001:2::/48, 2001:3::/32, 2001:4:112::/48, 2001:10::/28, \
+    2001:20::/28, 2001:30::/28, 2001:db8::/32, 2002::/16, 2620:4f:8000::/48, \
+    3fff::/20, 5f00::/16, fc00::/7, fe80::/10
+}
+
+table <wglan> const persist {
+    10.196.0.0/24, fd4c:a907:c0a5::/112
+}
+
 table <banned> persist counters file "/etc/pf/banned.table"
 
-anchor "scrub" on egress
-load anchor "scrub" from "/etc/pf/scrub.anchor"
+# macro
+if_public="vio0"
+if_wglan="wg0"
+log_out = "log(user)"
+log_block = "log(to pflog1)"
+log_icmp = "log"
+ratelimit_icmp = "max-pkt-rate 100/10"
+
+# base
+block drop in $log_block on $if_public
+block return out $log_block proto { tcp, udp }
+
+# quick block
+block drop in $log_block quick on $if_public from <banned>
+block drop in $log_block quick on $if_public inet from <vogons4>
+block drop in $log_block quick on $if_public inet6 from <vogons6>
+block return out $log_block quick on $if_public inet to <vogons4>
+block return out $log_block quick on $if_public inet6 to <vogons6>
+
+## scrub/normalize
+# match in on $if_public scrub (no-df random-id min-ttl 64)
+# match in on $if_public proto tcp scrub(reassemble tcp max-mss 1440)
+
+# icmp|6
+pass $log_icmp on $if_public inet proto icmp $ratelimit_icmp
+pass $log_icmp on $if_public inet6 proto ipv6-icmp $ratelimit_icmp
 
 <%- if node[:pf_enable_relayd] -%>
-anchor "relayd/*"
+anchor "relayd/*" on $if_public
 <%- end -%>
 
-anchor "block/default" on egress
-anchor "block/in-quick-bad" in on egress
-load anchor "block" from "/etc/pf/block.anchor"
+<% node[:pf_snippets].each do |snippet| -%>
+<%= snippet %>
+<% end -%>
 
-anchor "services" in on egress
-<%- if node[:pf_has_local_services] -%>
-anchor "services/local" in on egress
-<%- end -%>
-load anchor "services" from "/etc/pf/services.anchor"
-<%- if node[:pf_has_local_services] -%>
-load anchor "services/local" from "/etc/pf/services.local.anchor"
-<%- end -%>
+# outgoing users usage
+pass out on $if_public proto { tcp udp } to port domain user _unbound
+pass out on $if_public proto udp to port ntp user _ntp
+pass out on $if_public proto tcp to port https user _ntp
+pass out on $if_public proto tcp to port { ftp http https } group { _pfetch _pkgfetch _syspatch }
+pass out on $if_public proto tcp to port smtp user { _smtpd _spamd }
+pass out $log_out on $if_public proto { tcp udp } user root allow-opts
+# pass out $log_out on $if_public proto { tcp udp } group wheel allow-opts
 
-anchor "icmp/ipv4-icmp" on egress inet proto icmp
-anchor "icmp/ipv6-icmp" on egress inet6 proto icmp6
-load anchor "icmp" from "/etc/pf/icmp.anchor"
+
+# vim: ft=pf
