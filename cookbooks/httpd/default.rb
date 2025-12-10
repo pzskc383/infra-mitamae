@@ -33,6 +33,7 @@ end
 template '/etc/relayd.conf.d/tls_relay.conf' do
   source 'templates/relayd.conf.d/tls_relay.conf.erb'
   variables(domains: node[:relayd_domains] || [])
+  notifies :create, 'template[/etc/relayd.conf]'
 end
 
 directory '/var/www/errdocs' do
@@ -50,9 +51,9 @@ end
 
 directory "/var/www/htdocs/fqdn"
 fqdn_hosts = {
+  "host" => node[:fqdn],
   "v4" => node[:network_setup][:v4][:address],
-  "v6" => node[:network_setup][:v6][:address],
-  "host" => node[:fqdn]
+  "v6" => node[:network_setup][:v6][:address]
 }
 
 fqdn_hosts.each do |type, value|
@@ -68,8 +69,13 @@ end
 
 template '/etc/httpd.conf.d/fqdn.conf' do
   source 'templates/httpd.conf.d/fqdn.conf.erb'
-  variables(hosts: fqdn_hosts)
-  notifies :restart, 'service[httpd]'
+  variables(fqdn_hosts: fqdn_hosts)
+  notifies :create, "template[/etc/httpd.conf]"
+end
+
+remote_file '/etc/httpd.conf.d/relayd_check.conf' do
+  source 'files/relayd_check.conf'
+  notifies :create, "template[/etc/httpd.conf]"
 end
 
 service 'httpd' do
@@ -86,10 +92,10 @@ include_recipe "../pf/defines.rb"
 pf_snippet 'httpd' do
   content <<~PF
     # http and https services
-    pass proto tcp to port { http https }
+    pass proto tcp to port { http https } set queue http
   PF
 end
 
 node[:pf_enable_relayd] = true
 
-notify!("template[pf_dynamic_services]") { action :create }
+notify!("create@template[pf_dynamic_services]")

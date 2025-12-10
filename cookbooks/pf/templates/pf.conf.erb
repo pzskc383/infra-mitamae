@@ -12,6 +12,7 @@ set fingerprints "/etc/pf.os"
 set limit { states 100000, src-nodes 100000, table-entries 400000 }
 set skip on { lo0 }
 
+# host tables
 table <bogons4> const persist {
     0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, \
     172.16.0.0/12, 192.0.0.0/24, 192.0.0.0/29, 192.0.0.8/32, 192.0.0.9/32, \
@@ -42,6 +43,21 @@ log_block = "log(to pflog1)"
 log_icmp = "log"
 ratelimit_icmp = "max-pkt-rate 100/10"
 
+# queues
+queue rootq on $if_public bandwidth 990M max 1G
+queue ssh parent rootq bandwidth 100M
+queue ssh_bulk parent ssh bandwidth 80M
+queue ssh_prio parent ssh bandwidth 20M min 2M
+queue http parent rootq bandwidth 400M
+queue dns parent rootq bandwidth 100M
+queue def parent rootq bandwidth 500M default
+
+                                                                                            
+# match out on $if_public proto tcp from port { http https } to any set queue http no state
+# match out on $if_public proto tcp from port 38322 to any set queue(ssh_bulk, ssh_prio) no state
+# match out on $if_public proto { tcp udp } from port domain to any set queue dns no state
+
+
 # base
 block drop in $log_block on $if_public
 block return out $log_block proto { tcp, udp }
@@ -64,15 +80,13 @@ pass $log_icmp on $if_public inet6 proto ipv6-icmp $ratelimit_icmp
 <%- if node[:pf_enable_relayd] -%>
 anchor "relayd/*" on $if_public
 <%- end -%>
-
 <% node[:pf_snippets].each do |snippet| -%>
 <%= snippet %>
 <% end -%>
 
 # outgoing users usage
-pass out on $if_public proto { tcp udp } to port domain user _unbound
-pass out on $if_public proto udp to port ntp user _ntp
-pass out on $if_public proto tcp to port https user _ntp
+pass out on $if_public proto { tcp udp } to port domain user { _unbound _knot }
+pass out on $if_public proto udp to port { ntp https } user _ntp
 pass out on $if_public proto tcp to port { ftp http https } group { _pfetch _pkgfetch _syspatch }
 pass out on $if_public proto tcp to port smtp user { _smtpd _spamd }
 pass out $log_out on $if_public proto { tcp udp } user root allow-opts

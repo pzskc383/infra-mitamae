@@ -20,5 +20,5 @@ end
 define :pf_snippet, content: nil do
   node[:pf_snippets] << (params[:content] || params[:name])
 
-  notify!("template[pf_dynamic_services]") { action :create }
+  notify!("create@template[pf_dynamic_services]")
 end

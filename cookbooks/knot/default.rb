@@ -153,6 +153,6 @@ end
 
 pf_snippet 'knot' do
   content <<~PF
-    pass in proto { udp tcp } to port domain
+    pass in proto { udp tcp } to port domain set queue dns
   PF
 end

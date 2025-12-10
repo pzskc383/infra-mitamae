@@ -19,5 +19,4 @@ properties:
       - pzskc383.net
       - pzskc383.dp.ua
     httpd_config_files:
-      - redirects_pzskc383.conf
       - main_pzskc383.conf

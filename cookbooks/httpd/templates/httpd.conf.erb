@@ -5,18 +5,13 @@ errdocs "errdocs/"
 
 prefork 5
 
-<%- @config_files.each do |filename| %>
-include "/etc/httpd.conf.d/<%= filename %>"
-<%- end %>
-
 include "/etc/httpd.conf.d/fqdn.conf"
 
-server "_healthcheck" {
-    listen on $loopback port $redirect_port
-    listen on $loopback port $serve_port
+<%- @config_files.each do |filename| %>
+include "/etc/httpd.conf.d/<%= filename %>"
+<%- end -%>
 
-    block return 200
-}
+include "/etc/httpd.conf.d/relayd_check.conf"
 
 types {
     include "/usr/share/misc/mime.types"

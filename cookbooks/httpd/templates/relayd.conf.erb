@@ -3,10 +3,13 @@ ext_if = vio0
 int_if = wg0
 
 prefork 5
+interval 30
 log state changes
-log connection
+## log host checks
+log connection errors
 
 table <httpd> { 127.0.0.1 }
+table <sorry> disable { 127.0.0.1 }
 
 include "/etc/relayd.conf.d/http_relay.conf"
 <%- if @has_tls %>

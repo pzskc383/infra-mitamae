@@ -13,7 +13,7 @@
 /var/log/debug                          644  1     300  *     Z
 /var/log/remote                         644  1     300  *     Z
 
-<%- %w[default cgit git-dumb git-backend redir main cgit bare fqdn].each do |host| %>
+<%- %w[default cgit git-dumb git-backend redir main cgit fqdn fqdn].each do |host| %>
 /var/www/logs/access.<%= host %>.log                644  4     *    $W0   Z "pkill -USR1 -u root -U root -x httpd"
 /var/www/logs/error.<%= host %>.log                 644  7     250  *     Z "pkill -USR1 -u root -U root -x httpd"
 <%- end -%>

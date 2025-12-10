@@ -1,9 +1,15 @@
-%w[main redirects].each do |p|
-  remote_file "/etc/httpd.conf.d/#{p}_pzskc383.conf" do
-    source "templates/#{p}_pzskc383.conf.erb"
-    notifies :restart, 'service[httpd]'
-  end
+node[:relayd_domains] << "pzskc383.net"
+node[:relayd_domains] << "pzskc383.dp.ua"
+
+notify!("create@template[/etc/relayd.conf]")
+
+remote_file "/etc/httpd.conf.d/main_pzskc383.conf" do
+  source "templates/main_pzskc383.conf.erb"
+  notifies :reload, 'service[httpd]'
 end
+  
+node[:httpd_config_files] << "main_pzskc383.conf"
+notify!("create@template[/etc/httpd.conf]")
 
 %w[cgitrc cgit-head.inc.html].each do |fn|
   remote_file "/var/www/conf/#{fn}" do
@@ -25,9 +31,4 @@ directory "/var/www/htdocs/pzskc383"
   end
 end
 
-include_recipe "compile_chroma.rb"
-
-# node[:httpd_config_files] << "redirects_pzskc383.conf"
-# node[:httpd_config_files] << "main_pzskc383.conf"
-# node[:relayd_domains] << "pzskc383.net"
-# node[:relayd_domains] << "pzskc383.dp.ua"
+# include_recipe "compile_chroma.rb"

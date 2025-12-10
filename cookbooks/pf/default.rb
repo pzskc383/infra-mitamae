@@ -7,27 +7,21 @@ include_recipe 'defines.rb'
 
 include_recipe '../openbsd_server/defines.rb'
 
-[
-  "net.inet.ip.forwarding=1",
-  "net.inet6.ip6.forwarding=1",
-  "net.inet.ip.multipath=1",
-  "net.inet6.ip6.multipath=1",
-  "net.inet.icmp.maskrepl=0",
-  "net.inet.icmp.rediraccept=0",
-  "net.inet.icmp.tstamprepl=0",
-  "net.inet6.icmp6.rediraccept=0",
-  # "net.inet.tcp.rfc1323=1",
-  # "net.inet.tcp.rfc3390=2",
-  # "net.inet.tcp.sack=1",
-  # "net.inet.tcp.ecn=1",
-  # "net.inet.tcp.mssdflt=1440",
-  # "net.inet.ip.mtudisc=1",
-  # "net.inet.gre.allow=1",
-  # "net.inet.ipcomp.enable=1",
-  # "net.pipex.enable=1",
-  # "net.inet.tcp.synuselimit=10000"
-].each do |line|
-  sysctl line
+sysctl "pf" do
+  settings %w[
+    net.inet.ip.forwarding=1
+    net.inet6.ip6.forwarding=1
+    net.inet.icmp.maskrepl=0
+    net.inet.icmp.tstamprepl=0
+    net.inet.icmp.rediraccept=0
+    net.inet6.icmp6.rediraccept=0
+    net.inet.gre.allow=1
+    net.inet.ipcomp.enable=1
+    net.inet.tcp.rfc3390=1
+    net.inet.ip.ifq.maxlen=8192
+    net.inet.tcp.mssdflt=1440
+    net.inet.ip.mtudisc=0
+  ]
 end
 
 %w[hostname.pflog0 hostname.pflog1].each do |f|

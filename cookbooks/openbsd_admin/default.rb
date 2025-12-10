@@ -36,21 +36,24 @@ execute "restart_sshd" do
   not_if "sshd -t"
 end
 
-{
-  "Port" => "38322",
-  "PermitRootLogin" => "prohibit-password",
-  "PasswordAuthentication" => "no",
-  "KexAlgorithms" => "curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256", 
-  "MACs" => "umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com", 
-  "HostKeyAlgorithms" => "ssh-ed25519,rsa-sha2-256,rsa-sha2-512", 
-}.each do |k, v|
-  config_set "/etc/ssh/sshd_config" do
-    key k
-    value v
-    notifies :run, "execute[:restart_sshd]"
-  end
+service "sshd" do
+  action :nothing
+  not_if "sshd -t"
+end
+
+lines_in_file "/etc/ssh/sshd_config" do
+  lines %w[
+    Port=38322
+    PermitRootLogin=prohibit-password
+    PasswordAuthentication=no
+    KexAlgorithms=curve25519-sha256curve25519-sha256@libssh.orgdiffie-hellman-group16-sha512diffie-hellman-group18-sha512diffie-hellman-group-exchange-sha256 
+    MACs=umac-128-etm@openssh.comhmac-sha2-256-etm@openssh.comhmac-sha2-512-etm@openssh.com 
+    HostKeyAlgorithms=ssh-ed25519rsa-sha2-256rsa-sha2-512 
+  ]
+
+  notifies :restart, "service[sshd]"
 end
 
 include_recipe "../pf/defines.rb"
 
-pf_snippet "pass proto tcp to port 38322"
+pf_snippet "pass proto tcp to port 38322 set queue(ssh_bulk, ssh_prio)"

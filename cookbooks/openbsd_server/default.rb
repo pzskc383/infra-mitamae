@@ -44,12 +44,16 @@ service "unbound" do
   action %i[enable start]
 end
 
-[
-  "ddb.console=0",
-  "ddb.panic=0",
-  "kern.splassert=3",
-  "machdep.allowaperture=0",
-  "kern.nosuidcoredump=2"
-].each do |line|
-  sysctl line
+sysctl "base" do
+  settings %w[
+    ddb.console=0
+    ddb.panic=0
+    kern.splassert=3
+    machdep.allowaperture=0
+    kern.nosuidcoredump=2
+    kern.bufcachepercent=90
+    kern.maxfiles=8192
+    kern.maxproc=2048
+    kern.maxclusters=32768
+  ]
 end

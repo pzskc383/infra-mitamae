@@ -5,6 +5,7 @@ http protocol www_plain {
     match header set "X-Forwarded-By" \
         value "$SERVER_ADDR:$SERVER_PORT"
     match header set "Keep-Alive" value "$TIMEOUT"
+    pass
 
 }
 
@@ -12,5 +13,6 @@ relay www_plain {
     listen on $ext_if port 80
     protocol www_plain
 
-    forward to <httpd> port $redirect_port check http "/health" host "_healthcheck" code 200
+    forward to <httpd> port $redirect_port 
+    # check http "/" host "_healthcheck" code 200
 }

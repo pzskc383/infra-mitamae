@@ -1,7 +1,10 @@
+tls_opts = "edh params auto, no tlsv1.0, session tickets"
+
 http protocol www_tls {
-    tls { keypair <%= node.fqdn %>, edh params auto }
+    tcp { nodelay, sack, socket buffer 65536, backlog 128 }
+    tls { keypair <%= node.fqdn %>, $tls_opts }
 <%- @domains.each do |domain| %>
-    tls { keypair <%= domain %>, edh params auto }
+    tls { keypair <%= domain %>, $tls_opts }
 <%- end %>
 
     match header set "X-Forwarded-For" \
@@ -9,6 +12,7 @@ http protocol www_tls {
     match header set "X-Forwarded-By" \
         value "$SERVER_ADDR:$SERVER_PORT"
     match header set "Keep-Alive" value "$TIMEOUT"
+    pass
 
 }
 
@@ -16,5 +20,6 @@ relay www_tls {
     listen on $ext_if port 443 tls
     protocol www_tls
 
-    forward to <httpd> port $redirect_port check http "/health" host "_healthcheck" code 200
+    forward to <httpd> port $redirect_port 
+    #check http "/" host "_healthcheck" code 200
 }

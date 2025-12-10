@@ -27,14 +27,17 @@ file "/etc/inetd.conf" do
   content ""
 end
 
-line_in_file "/etc/inetd.conf" do
-  line "telnet stream tcp nowait root #{dickd_bin} erection"
-  pattern(%r{^#?telnet\s+stream\s+tcp\s})
-end
+lines_in_file "/etc/inetd.conf" do
+  lines = %w[tcp tcp6].map do |proto|
+    {
+      line: "telnet stream #{proto} nowait root #{dickd_bin} erection",
+      regexp: %r{^#?telnet\s+stream\s+#{proto}\s},
+      append: true
+    }
+  end
+  
+  lines lines
 
-line_in_file "/etc/inetd.conf" do
-  line "telnet stream tcp6 nowait root #{dickd_bin} erection"
-  pattern(%r{^#?telnet\s+stream\s+tcp6\s})
   notifies :restart, "service[inetd]"
 end
 

@@ -106,3 +106,39 @@ server "main" {
         root "/htdocs/pzskc383"
     }
 }
+
+# http -> https redirects
+server "main_plain" {
+    alias "*.pzskc383.net"
+    alias "pzskc383.net"
+
+    listen on $loopback port $redirect_port
+
+    log {
+        style forwarded
+        access "access.redir.log"
+        error "error.redir.log"
+    }
+
+    location * {
+        block return 302 "https://$HTTP_HOST$REQUEST_URI"
+    }
+}
+
+# also, old domain -> new
+server "old_plain" {
+    alias "*.pzskc383.dp.ua"
+    alias "pzskc383.dp.ua"
+
+    listen on $loopback port $redirect_port
+
+    log {
+        style forwarded
+        access "access.redir.log"
+        error "error.redir.log"
+    }
+
+    location * {
+        block return 302 "https://pzskc383.net$REQUEST_URI"
+    }
+}

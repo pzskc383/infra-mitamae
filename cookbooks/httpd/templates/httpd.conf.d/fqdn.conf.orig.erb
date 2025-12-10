@@ -1,19 +1,7 @@
-server "_default" {
-    listen on $loopback port $redirect_port
-    listen on $loopback port $serve_port
-
-    log {
-        access "access.default.log"
-        error "error.default.log"
-    } 
-
-    location * {
-        block return 200
-    }
-}
-
 <%- @fqdn_hosts.each do |type, addr| %>
-server "<%= addr %>" {
+server "_fqdn_<%= type %>" {
+    alias "<%= addr %>"
+
     listen on $loopback port $redirect_port
     <%- if type == "host" -%>
     listen on $loopback port $serve_port
