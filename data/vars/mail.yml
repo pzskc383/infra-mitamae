@@ -5,7 +5,6 @@ mail_domains:
     catchall_subdomains: true
     servers:
       - airstrip1
-      - b0rsch
       - f0rk
       - a2mm
 
@@ -15,7 +14,6 @@ mail_domains:
     catchall_subdomains: true
     servers:
       - airstrip1
-      - b0rsch
       - f0rk
       - a2mm
 
