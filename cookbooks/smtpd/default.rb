@@ -1,7 +1,7 @@
 # OpenSMTPD mail server cookbook
 node[:mail_domains] ||= {}
 node[:mail_admin_aliases] ||= %w[MAILER-DAEMON postmaster hostmaster
-                                 operator www security manager dumper 
+                                 operator www security manager dumper
                                  noc webmaster]
 
 # Determine mail role for this host based on mail_domains configuration
@@ -37,10 +37,6 @@ node[:mail_role] = mail_role
 node[:mail_primary_domains] = primary_domains
 node[:mail_relay_domains] = relay_domains
 
-# ::MItamae.logger.info "Mail role: #{mail_role}"
-# ::MItamae.logger.info "Mail accounts: #{mail_accounts.join(', ')}" unless mail_accounts.empty?
-# ::MItamae.logger.info "Primary domains: #{primary_domains.join(', ')}" unless primary_domains.empty?
-# ::MItamae.logger.info "Relay domains: #{relay_domains.join(', ')}" unless relay_domains.empty?
 
 # fqdn+fcrdns
 template "/etc/mail/mailname" do
@@ -139,7 +135,8 @@ template "/etc/mail/smtpd.conf" do
     tls_key: node[:mail_tls_key] || "/etc/ssl/private/fqdn.key",
     mail_domains: node[:mail_domains]
   )
-  notifies :run, "local_ruby_block[restart_smtpd]"
+
+  notifies :run, "execute[restart_smtpd]"
 end
 
 # Enable and start smtpd service
@@ -148,13 +145,11 @@ service "smtpd" do
   only_if "smtpd -n"
 end
 
-local_ruby_block "restart_smtpd" do
+execute "restart_smtpd" do
   action :nothing
 
+  command "rcctl restart smtpd"
   only_if "smtpd -n"
-  block do
-    service("smtpd") { action :restart }
-  end
 end
 
 include_recipe "../pf/defines.rb"

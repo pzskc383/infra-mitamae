@@ -6,7 +6,7 @@ node.reverse_merge!({
 execute "reload_pf" do
   action :nothing
   command "pfctl -f /etc/pf.conf"
-  not_if "pfctl -nf /etc/pf.conf"
+  only_if "pfctl -nf /etc/pf.conf"
 end
 
 template "pf_dynamic_services" do

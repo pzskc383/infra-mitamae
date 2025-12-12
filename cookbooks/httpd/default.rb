@@ -26,7 +26,7 @@ end
 
 template '/etc/relayd.conf' do
   source 'templates/relayd.conf.erb'
-  variables(has_tls: node[:relayd_has_fqdn_cert] || !node[:relayd_domains].empty?)
+  variables(has_tls: node[:relayd_has_fqdn_cert] || !node[:relayd_domains].nil?)
   notifies :restart, 'service[relayd]'
 end
 

@@ -1,8 +1,8 @@
 # Role: <%= @mail_role %>
 
 fqdn = "<%= @fqdn %>"
-pki main cert "<%= @tls_cert %>"
-pki main key "<%= @tls_key %>"
+pki fqdn cert "<%= @tls_cert %>"
+pki fqdn key "<%= @tls_key %>"
 
 smtp limit max-mails 10
 smtp limit max-rcpt 5
@@ -11,17 +11,12 @@ smtp max-message-size 100M
 table vdomains file:/etc/mail/vdomains
 <% if @mail_role == 'primary' -%>
 table vusers file:/etc/mail/vusers
-table passwd passwd:/etc/mail/passwd
+table passwd file:/etc/mail/passwd
 
-# filter "rspamd" proc-exec "filter-rspamd"
-# listen on socket filter "rspamd"
-
-# filter "rspamd"
-listen on all port 25 tls pki main \
+listen on all port 25 tls pki fqdn \
     hostname $fqdn tag MTA
     
-# filter "rspamd"
-listen on all port 587 tls-require pki main \
+listen on all port 587 tls-require pki fqdn \
     hostname $fqdn tag MSA auth <passwd> mask-src
 
 action "deliver" \
@@ -36,7 +31,7 @@ match from local for local action "deliver"
 match from local for domain <vdomains> action "deliver"
 match from local for any action "relay"
 <% else -%>
-listen on egress port 25 tls pki main \
+listen on egress port 25 tls pki fqdn \
     hostname $fqdn tag MTA
 
 action "relay" relay helo $fqdn

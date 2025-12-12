@@ -44,8 +44,8 @@ define :ldap_object, attributes: [] do
   object_check_result = run_command("ldap search -b '#{search_base}' -D '#{bind_dn}' -w '#{node[:ldapd_bind_pw]}' '(#{identifier})'|wc -l")
   has_object = object_check_result.stdout.chomp!.to_i > 0
   
-  ::MItamae.logger.info "ldap check for #{dn}:"
-  ::MItamae.logger.info object_check_result.inspect
+  # ::MItamae.logger.info "ldap check for #{dn}:"
+  # ::MItamae.logger.info object_check_result.inspect
 
   
   file "/tmp/ldapadd.ldif" do

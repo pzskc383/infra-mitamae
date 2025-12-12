@@ -1,19 +1,15 @@
-
 knot_zones:
   - name: pzskc383.net
     primary: f0rk
     secondaries:
       - a2mm
-      - airstrip1
 
   - name: pzskc383.dp.ua
     primary: f0rk
     secondaries:
       - a2mm
-      - airstrip1
 
   - name: b0x.pw
     primary: f0rk
     secondaries:
       - a2mm
-      - airstrip1

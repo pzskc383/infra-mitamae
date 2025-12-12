@@ -33,12 +33,12 @@ end
 execute "restart_sshd" do
   action :nothing
   command "rcctl restart sshd"
-  not_if "sshd -t"
+  only_if "sshd -t"
 end
 
 service "sshd" do
-  action :nothing
-  not_if "sshd -t"
+  action %i[enable start]
+  only_if "sshd -t"
 end
 
 lines_in_file "/etc/ssh/sshd_config" do
@@ -51,7 +51,7 @@ lines_in_file "/etc/ssh/sshd_config" do
     HostKeyAlgorithms=ssh-ed25519rsa-sha2-256rsa-sha2-512 
   ]
 
-  notifies :restart, "service[sshd]"
+  notifies :run, "execute[restart_sshd]"
 end
 
 include_recipe "../pf/defines.rb"

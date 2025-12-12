@@ -1,28 +1,45 @@
 # Knot DNS cookbook
 node.reverse_merge!({
   knot_zones: [],
-  knot_zone_snippets: [],
   knot_dnssec: []
 })
 
-node.validate! do
-  {
-    knot_zone_snippets: array_of({
-      zone: string,
-      content: array_of(string)
-    }),
-    knot_zones: array_of({
-      name: string,
-      primary: string,
-      secondaries: array_of(string)
-    }),
-    knot_dnssec: array_of({
-      zone: string,
-      ksk: {
-        priv: string
-      }
-    })
-  }
+key_import_dir = "/var/db/knot/keys-import"
+
+define :knot_domain_ksk, ksk: nil do
+  zone = params[:name]
+  keyname = format("K%s.+013+%05d", zone, params[:ksk][:keytag])
+
+  needs_import = run_command("keymgr #{zone} list |grep -qF KSK", error: false).exit_status > 0
+  directory key_import_dir do
+    only_if { needs_import }
+  end
+
+  file "#{key_import_dir}/#{keyname}.private" do
+    only_if { needs_import }
+    content params[:ksk][:priv]
+    sensitive true
+    group "_knot"
+    mode "0640"
+  end
+
+  file "#{key_import_dir}/#{keyname}.key" do
+    only_if { needs_import }
+    content "#{zone}. IN #{params[:ksk][:dnskey]}"
+    group "_knot"
+    mode "0640"
+  end
+
+  execute "keymgr #{zone} import-bind #{key_import_dir}/#{keyname.shellescape}.private" do
+    only_if { needs_import }
+  end
+
+  %w[private key].each do |ext|
+    file "#{key_import_dir}/#{keyname}.#{ext}" do
+      action :delete
+      only_if { needs_import }
+    end
+  end
 end
 
 %w[knot dbus ldns-utils].each do |pkg|
@@ -48,16 +65,20 @@ template '/etc/knot/knot.conf' do
   mode '0644'
   owner 'root'
   group 'wheel'
+  other_hosts = node[:hosts].reject { |k,v| k == node[:hostname] }
   variables(
     knot_zones: node[:knot_zones],
     knot_tsig_secret: node[:knot_tsig_secret],
-    hosts: node[:hosts],
+    hosts: other_hosts,
     current_host: node[:hostname]
   )
   notifies :restart, 'service[knot]'
 end
 
-local_zones = []
+service 'knot' do
+  action %i[enable start]
+end
+
 node[:knot_zones].each do |z|
   now = Time.now
   midnight = Time.new(now.year, now.month, now.day, 0, 0, 0)
@@ -66,7 +87,7 @@ node[:knot_zones].each do |z|
   next unless z[:primary] == node[:hostname]
 
   zone = z[:name]
-  local_zones << zone
+  dnskey = node[:knot_dnssec].reject {|d| d[:zone] != zone }.first
 
   template "#{z[:name]}.zone" do
     source "templates/zones/#{z[:name]}.zone.erb"
@@ -81,59 +102,31 @@ node[:knot_zones].each do |z|
       serial: serial
     )
 
-    notifies :reload, 'service[knot]'
   end
-end
 
-key_import_dir = "/var/db/knot/keys-import"
-
-define :knot_domain_ksk, ksk: nil do
-  zone = params[:zone]
-  keyname = format("K%s.+013+%05d", zone, params[:ksk][:keytag])
-
-  local_ruby_block "keymgr import #{zone}" do
-    not_if "keymgr #{zone} list |grep ZSK"
-    block do
-      directory key_import_dir
-      file "#{key_import_dir}/#{keyname}.private" do
-        content params[:ksk][:priv]
-        sensitive true
-        group "_knot"
-        mode "0640"
-      end
-
-      file "#{key_import_dir}/#{keyname}.key" do
-        content "#{zone}. IN #{params[:ksk][:dnskey]}"
-        group "_knot"
-        mode "0640"
-      end
-
-      command "keymgr #{zone} import-bind #{key_import_dir}/#{keyname.shellescape}.private"
-
-      %w[private key].each do |ext|
-        file "#{key_import_dir}/#{keyname}.#{ext}" do
-          action :delete
-        end
-      end
-    end
+  execute "reload #{zone}" do
+    command <<-EOC
+      knotc zone-check #{zone} && \
+      knotc zone-reload #{zone}
+    EOC
   end
-end
-
-node[:knot_dnssec].each do |dnskey|
-  zone = dnskey[:zone]
-  next unless local_zones.include? zone
 
   knot_domain_ksk dnskey[:zone] do
     ksk dnskey[:ksk]
   end
 
-  execute "keymgr cleanup #{zone}" do
-    # remove all but first key of each type
-    command <<~CMD
-      keymgr #{zone} list|grep -F KSK|sed 1d |awk '{print $1}'|xargs -n1 keymgr #{zone} delete
-      keymgr #{zone} list|grep -F ZSK|sed 1d |awk '{print $1}'|xargs -n1 keymgr #{zone} delete
-    CMD
-    only_if "test $(keymgr #{zone} list |wc -l) -gt 2"
+  %w[KSK ZSK].each do |keytype|
+    execute "keymgr cleanup #{keytype} in #{zone}" do
+      # remove all but first key of each type
+      command <<~CMD
+        keymgr #{zone} list| \
+        grep -F #{keytype}| \
+        sed 1d | \
+        awk '{print $1}'| \
+        xargs -n1 keymgr #{zone} delete
+      CMD
+      only_if "test $(keymgr #{zone} list | grep #{keytype} | wc -l) -gt 1"
+    end
   end
 
   execute "keymgr generate zsk for #{zone}" do
@@ -145,10 +138,6 @@ end
 directory key_import_dir do
   action :delete
   only_if "test -d #{key_import_dir}"
-end
-
-service 'knot' do
-  action %i[enable start]
 end
 
 pf_snippet 'knot' do

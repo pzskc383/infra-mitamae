@@ -8,3 +8,9 @@ properties:
     - cookbooks/smtpd/default.rb
   attributes:
     dns_shortname: a2
+    motd: |-
+
+        ▞▀▖  ▞▀▖  ▙▗▌  ▙▗▌
+        ▙▄▌   ▗▘  ▌▘▌  ▌▘▌
+        ▌ ▌  ▗▘   ▌ ▌  ▌ ▌
+        ▘ ▘  ▀▀▘  ▘ ▘  ▘ ▘

@@ -35,7 +35,7 @@ end
 
 file "/etc/pf/banned.table" do
   content ""
-  not_if "test -f /etc/pf/banned.table"
+  not_if { ::File.exist?("/etc/pf/banned.table") }
 end
 
 
@@ -47,8 +47,9 @@ service "pflogd1" do
   action [:enable]
 end
 
-execute "rcctl set pflogd1 flags '-i pflog1 -s 1440'" do
-  not_if "grep -qE 'pflogd1.*pflog1' /etc/rc.conf.local"
+execute "pflogd1_flags" do
+  command "rcctl set pflogd1 flags '-i pflog1 -s 1440'"
+  not_if "grep -E 'pflogd1_flags.*pflog1' /etc/rc.conf.local"
 end
 
 service "pflogd1" do

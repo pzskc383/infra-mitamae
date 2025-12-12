@@ -1,3 +1,4 @@
+node[:relayd_domains] ||= []
 node[:relayd_domains] << "pzskc383.net"
 node[:relayd_domains] << "pzskc383.dp.ua"
 

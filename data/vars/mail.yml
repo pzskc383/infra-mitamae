@@ -4,7 +4,6 @@ mail_domains:
     catchall_account: maniac@pzskc383.net
     catchall_subdomains: true
     servers:
-      - airstrip1
       - f0rk
       - a2mm
 
@@ -13,7 +12,6 @@ mail_domains:
     catchall_account: maniac@pzskc383.net
     catchall_subdomains: true
     servers:
-      - airstrip1
       - f0rk
       - a2mm
 

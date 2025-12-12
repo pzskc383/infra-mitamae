@@ -31,8 +31,16 @@ if node[:network_setup][:v6][:use_slaacd] then
   end
 end
 
-template "/etc/hostname.vio0"
-template "/etc/mygate"
+execute "netstart" do
+  action :nothing
+  command "/bin/sh /etc/netstart"
+end
+
+%w[mygate hostname.vio0].each do |netfile|
+  template "/etc/#{netfile}" do
+    notifies :run, "execute[netstart]"
+  end
+end
 
 %w[sndiod resolvd].each do |srv|
   service srv do

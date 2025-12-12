@@ -27,19 +27,21 @@ end
 execute "acquire initial certificates" do
   command "/var/lego/lego.sh run"
   # Only run if at least one cert is missing
-  not_if "true"
-  # not_if do
-  #   certs = node[:lego_certs] || []
-  #   certs.empty? || certs.all? do |cert|
-  #     domain = cert[:domains].first
-  #     File.exist?("/etc/ssl/#{domain}.crt") && File.exist?("/etc/ssl/private/#{domain}.key")
-  #   end
-  # end
+  not_if do
+    certs = node[:lego_certs] || []
+    certs.empty? || certs.all? do |cert|
+      domain = cert[:domains].first
+      File.exist?("/etc/ssl/#{domain}.crt") && File.exist?("/etc/ssl/private/#{domain}.key")
+    end
+    # XXX
+    true
+  end
 end
 
+cron_rand = ::Random.rand(60*24)
 cron "lego certificate renewal" do
-  hour "3"
-  minute "17"
+  hour (cron_rand % 24).to_s
+  minute (cron_rand % 60).to_s
   day "*/7"
   command "/var/lego/lego.sh renew"
 end

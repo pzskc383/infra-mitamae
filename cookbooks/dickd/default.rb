@@ -2,43 +2,38 @@
 dickd_bin = "/usr/local/bin/erection"
 dickd_builddir = "/tmp/dickd-build"
 
+has_dickd = run_command("test -x #{dickd_bin}").exit_status == 0
+
 directory dickd_builddir do
-  not_if "test -x #{dickd_bin}"
+  not_if { has_dickd }
 end
 
 %w[erection.c frames.h].each do |f|
   remote_file "#{dickd_builddir}/#{f}" do
-    not_if "test -x #{dickd_bin}"
+    not_if { has_dickd }
   end
 end
 
 execute "compile erection" do
   command "cc -o #{dickd_bin} #{dickd_builddir}/erection.c"
-  not_if "test -x #{dickd_bin}"
+  not_if { has_dickd }
 end
 
 directory dickd_builddir do
   action :delete
-  only_if "test -d #{dickd_builddir}"
+  not_if { has_dickd }
 end
 
 file "/etc/inetd.conf" do
-  not_if "test -f /etc/inetd.conf"
-  content ""
-end
-
-lines_in_file "/etc/inetd.conf" do
-  lines = %w[tcp tcp6].map do |proto|
-    {
-      line: "telnet stream #{proto} nowait root #{dickd_bin} erection",
-      regexp: %r{^#?telnet\s+stream\s+#{proto}\s},
-      append: true
-    }
+  action :edit
+  block do |data|
+    data.gsub(%r[^telnet.*$], '')
+    <<-EOF
+      #{data}
+      telnet stream  tcp  nowait nobody  #{dickd_bin}  erection
+      telnet stream  tcp6 nowait nobody  #{dickd_bin}  erection
+    EOF
   end
-  
-  lines lines
-
-  notifies :restart, "service[inetd]"
 end
 
 pf_snippet "pass proto tcp to port telnet"

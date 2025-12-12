@@ -68,15 +68,6 @@ module Hocho
           }
         end
 
-        # Add ex1t host from global attributes
-        if @global_attrs[:ex1t]
-          data[:ex1t] = {
-            dns_shortname: @global_attrs[:ex1t][:dns_shortname],
-            v4: @global_attrs[:ex1t][:v4],
-            v6: @global_attrs[:ex1t][:v6]
-          }
-        end
-
         data
       end
 

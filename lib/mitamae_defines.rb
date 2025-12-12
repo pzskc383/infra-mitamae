@@ -13,9 +13,9 @@ define :block_in_file, content: nil, marker_start: nil, marker_end: nil do
 end
 
 define :lines_in_file, lines: [] do
-  commands = params[:lines].map do |line|
+  operations = params[:lines].map do |line|
 
-    command = case line
+    operation = case line
     when Hash, ::Hashie::Mash
       line
     when String
@@ -32,23 +32,20 @@ define :lines_in_file, lines: [] do
       raise "Unknown line supplied: #{line.class}"
     end
 
-    command[:append] ||= true
-    command[:regexp] ||= %r{#{Regexp.escape(command[:line])}}
+    operation[:append] ||= true
+    operation[:regexp] ||= %r{#{Regexp.escape(operation[:line])}}
 
-    command
+    operation
   end
   
-  ::MItamae.logger.debug "lines_in_file operations"
-  ::MItamae.logger.debug commands.inspect
-
   file params[:name] do
     action :edit
     block do |data|
-      commands.each do |cmd|
+      operations.each do |cmd|
         replacements = 0
         data.gsub!(%r{^.*$}) do |l|
           if cmd[:regexp].match?(l) && cmd[:line] != l
-            ::MItamae.logger.info "Replacing #{l} with #{cmd[:line]}"
+            ::MItamae.logger.debug "Replacing #{l} with #{cmd[:line]}"
             replacements += 1
             cmd[:line]
           else
@@ -74,7 +71,7 @@ end
 
 NOTIFY_RX = %r{(?<action>[^@]+)@(?<resource>[^\[]+)\[(?<name>[^\]]+)\]}.freeze
 
-# format: notify! "run@execute[my command]"
+# format: notify! "run@execute[my operation]"
 define :notify! do
   parsed = NOTIFY_RX.match(params[:name])
   raise RuntimeError.new("invalid notify! spec: #{params[:name]}") if parsed.nil?

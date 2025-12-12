@@ -16,6 +16,7 @@ log:
 
 database:
     storage: "/var/db/knot"
+    journal-db-max-size: 50M
 
 key:
   - id: tsig-default
@@ -66,7 +67,7 @@ template:
 
   - id: slave
     storage: "/var/db/knot/zones"
-    file: "%s.zone"
+    file: "%s.slave.zone"
     semantic-checks: on
     serial-policy: dateserial
     zonefile-sync: 0
