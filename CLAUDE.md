@@ -4,12 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a mitamae configuration for managing OpenBSD servers. Mitamae is an mruby-based configuration management tool (mini-Chef) that manages three OpenBSD VPS instances for DNS, mail, and web services.
+This is a mitamae configuration for managing OpenBSD servers. Mitamae is an mruby-based configuration management tool (mini-Chef) that manages OpenBSD VPS instances for DNS, mail, and web services.
 
 **Key servers:**
-- **airstrip1** (a1): Primary server (DNS, mail, certificates, web)
-- **b0rsch** (b0): Secondary server (DNS, mail relay, web)
-- **f0rk** (f0): Minimal secondary (DNS only)
+- **airstrip3** (a3): Primary server (DNS, mail, certificates, web)
+- **f0rk** (f0): Secondary server (DNS only)
 
 ## Common Commands
 
@@ -28,10 +27,10 @@ rake sops:encrypt
 hocho list
 
 # Deploy to specific host (dry-run)
-hocho apply --dry-run airstrip1
+hocho apply --dry-run airstrip3
 
 # Deploy to specific host
-hocho apply airstrip1
+hocho apply airstrip3
 ```
 
 ### Development
@@ -60,36 +59,51 @@ While mitamae looks like Chef, **it is NOT Chef**. Refer to `misc/mitamae/mrblib
 ├── hocho.yml                      # Hocho configuration
 ├── Rakefile                       # SOPS encryption/decryption tasks
 ├── .sops.yaml                     # SOPS encryption configuration
+├── bin/                           # Bundler binstubs (hocho monkeypatch)
 ├── data/                          # Host definitions and variables
 │   ├── hosts/                     # Per-host configs (directories)
-│   │   ├── airstrip1/
+│   │   ├── airstrip3/
 │   │   │   ├── default.yml        # Host properties and run_list
 │   │   │   └── secrets.sops.yml   # SOPS-encrypted host secrets
-│   │   ├── b0rsch/
-│   │   │   ├── default.yml
-│   │   │   └── secrets.sops.yml
 │   │   └── f0rk/
 │   │       ├── default.yml
 │   │       └── secrets.sops.yml
-│   └── vars/
-│       ├── default.yml            # Global variables
-│       └── secrets.sops.yml       # Encrypted global secrets
+│   └── vars/                      # Global variables (split by domain)
+│       ├── default.yml            # Base configuration
+│       ├── secrets.sops.yml       # Encrypted global secrets
+│       ├── knot.yml               # DNS configuration
+│       ├── lego.yml               # ACME/Let's Encrypt configuration
+│       └── mail.yml               # Mail server configuration
 ├── cookbooks/                     # Mitamae recipes
 │   ├── openbsd_server/            # Main server config (vim, network, etc)
 │   ├── openbsd_admin/             # Admin tools (git, zsh, doas, tmux)
 │   ├── openbsd_com0/              # Serial console configuration
 │   ├── pf/                        # Packet filter (firewall) configuration
 │   ├── knot/                      # Knot DNS server
-│   └── dickd/                     # Custom dickd service
+│   ├── dickd/                     # Custom dickd service
+│   ├── dovecot/                   # Dovecot IMAP server
+│   ├── httpd/                     # OpenBSD httpd web server
+│   ├── ldap/                      # LDAP server configuration
+│   ├── lego_domains/              # ACME cert management (domains)
+│   ├── lego_fqdn/                 # ACME cert management (FQDNs)
+│   ├── rspamd/                    # Rspamd spam filter
+│   ├── site_main/                 # Main website configuration
+│   └── smtpd/                     # OpenSMTPD mail server
 ├── plugins/                       # Custom mitamae plugins
 │   ├── mitamae-plugin-resource-openbsd_package/
-│   └── mitamae-plugin-resource-cron/  # Git submodule
+│   ├── mitamae-plugin-resource-cron/  # Git submodule
+│   └── mitamae-plugin-resource-ldap_object/
 ├── lib/                           # Custom extensions
 │   ├── mitamae_ext.rb             # Removes sudo/doas (running as root)
 │   ├── mitamae_defines.rb         # Custom resource definitions
 │   ├── hocho_ext.rb               # OpenBSD compatibility (sh, doas)
 │   └── hocho/inventory_providers/
 │       └── yaml_dir.rb            # YAML directory inventory provider
+├── deploy/                        # WIP: Deploy mitamae with mitamae
+│   ├── default.rb                 # Host definitions
+│   ├── defines.rb                 # Custom defines (host, run_on)
+│   ├── helpers.rb                 # Deployment helpers
+│   └── recipes/                   # Per-host deployment recipes
 ├── dist/                          # Pre-compiled mitamae binaries
 │   ├── mitamae-arm64-openbsd
 │   └── mitamae-x86_64-openbsd
@@ -107,7 +121,7 @@ Key files:
 - `hocho.yml`: Defines inventory providers, property providers, and driver options
 - `data/hosts/*/default.yml`: Host properties and run_list
 - `data/hosts/*/secrets.sops.yml`: SOPS-encrypted host-specific secrets (SSH credentials, network config)
-- `data/vars/default.yml`: Global variables (domain, DNS, mail config)
+- `data/vars/*.yml`: Global variables split by domain (default, knot, lego, mail)
 - `data/vars/secrets.sops.yml`: Encrypted global secrets
 
 Custom extensions in `lib/`:
