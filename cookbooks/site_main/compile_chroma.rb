@@ -2,7 +2,7 @@ package "go"
 
 chroma_build_dir = "/root/chroma"
 
-git "#{chroma_build_dir}" do
+git chroma_build_dir.to_s do
   repository "https://github.com/alecthomas/chroma.git"
   # revision "v2.20.0"
   depth 1

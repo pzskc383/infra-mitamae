@@ -18,7 +18,7 @@ execute "acquire initial fqdn certificates" do
   end
 end
 
-cron_rand = ::Random.rand(60*24)
+cron_rand = ::Random.rand(60 * 24)
 cron "lego fqdn certificate renewal" do
   hour (cron_rand % 24).to_s
   minute (cron_rand % 60).to_s

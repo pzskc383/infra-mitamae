@@ -1,4 +1,5 @@
 include_recipe 'defines.rb'
+
 host "a2mm" do
   attributes(
     dns_shortname: 'a2'

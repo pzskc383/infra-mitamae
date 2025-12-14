@@ -14,30 +14,29 @@ end
 
 define :lines_in_file, lines: [] do
   operations = params[:lines].map do |line|
-
     operation = case line
-    when Hash, ::Hashie::Mash
-      line
-    when String
-      match = %r{(?<key>[^=]+)=(?<value>.+)}.match(line)
-      unless match.nil?
-        {
-          line: "#{match[:key]}=#{match[:value]}",
-          regexp: %r{#{Regexp.escape(match[:key])}\s*=\s*}
-        }
-      else
-        { line: line }
-      end
-    else
-      raise "Unknown line supplied: #{line.class}"
-    end
+                when Hash, ::Hashie::Mash
+                  line
+                when String
+                  match = %r{(?<key>[^=]+)=(?<value>.+)}.match(line)
+                  if match.nil?
+                    { line: line }
+                  else
+                    {
+                      line: "#{match[:key]}=#{match[:value]}",
+                      regexp: %r{#{Regexp.escape(match[:key])}\s*=\s*}
+                    }
+                  end
+                else
+                  raise "Unknown line supplied: #{line.class}"
+                end
 
     operation[:append] ||= true
     operation[:regexp] ||= %r{#{Regexp.escape(operation[:line])}}
 
     operation
   end
-  
+
   file params[:name] do
     action :edit
     block do |data|
@@ -69,12 +68,12 @@ define :line_in_file, line: nil, pattern: nil, append: true do
   end
 end
 
-NOTIFY_RX = %r{(?<action>[^@]+)@(?<resource>[^\[]+)\[(?<name>[^\]]+)\]}.freeze
+NOTIFY_RX = %r{(?<action>[^@]+)@(?<resource>[^\[]+)\[(?<name>[^\]]+)\]}
 
 # format: notify! "run@execute[my operation]"
 define :notify! do
   parsed = NOTIFY_RX.match(params[:name])
-  raise RuntimeError.new("invalid notify! spec: #{params[:name]}") if parsed.nil?
+  raise "invalid notify! spec: #{params[:name]}" if parsed.nil?
 
   local_block_name = ["notify", parsed[:action], parsed[:resource], parsed[:name]].join('/')
 

@@ -1,16 +1,16 @@
 properties:
   run_list:
-    - cookbooks/openbsd_server/default.rb
-    - cookbooks/pf/default.rb
-    - cookbooks/openbsd_admin/default.rb
-    - cookbooks/knot/default.rb
-    - cookbooks/dickd/default.rb
-    - cookbooks/smtpd/default.rb
+    # - cookbooks/openbsd_server/default.rb
+    # - cookbooks/pf/default.rb
+    # - cookbooks/openbsd_admin/default.rb
+    # - cookbooks/knot/default.rb
+    # - cookbooks/dickd/default.rb
+    # - cookbooks/smtpd/default.rb
+    - cookbooks/ldap/default.rb
   attributes:
     dns_shortname: a2
-    motd: |-
-
-        ▞▀▖  ▞▀▖  ▙▗▌  ▙▗▌
-        ▙▄▌   ▗▘  ▌▘▌  ▌▘▌
-        ▌ ▌  ▗▘   ▌ ▌  ▌ ▌
-        ▘ ▘  ▀▀▘  ▘ ▘  ▘ ▘
+    motd: |
+              |     ▞▀▖  ▞▀▖  ▙▗▌  ▙▗▌    |
+              |   ▄ ▙▄▌   ▗▘  ▌▘▌  ▌▘▌ ▄  |
+              |     ▌ ▌  ▗▘   ▌ ▌  ▌ ▌    |
+              |     ▘ ▘  ▀▀▘  ▘ ▘  ▘ ▘    |

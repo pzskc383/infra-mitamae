@@ -20,3 +20,5 @@ group :development do
   gem "rubocop-rake"
   gem "rubocop-thread_safety"
 end
+
+gem "itamae", "~> 1.14"

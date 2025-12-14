@@ -25,7 +25,7 @@ file "/etc/resolv.conf" do
   mode "0644"
 end
 
-if node[:network_setup][:v6][:use_slaacd] then
+if node[:network_setup][:v6][:use_slaacd]
   service "slaacd" do
     action %i[enable start]
   end
@@ -45,6 +45,21 @@ end
 %w[sndiod resolvd].each do |srv|
   service srv do
     action %i[stop disable]
+  end
+end
+
+file "/etc/motd" do
+  action :edit
+  motd = node[:motd] || ""
+  block do |data|
+    header = data.lines.first
+
+    parts = [header, '']
+    unless node[:motd].nil?
+      parts << motd
+      parts << ''
+    end
+    data.replace parts.join("\n")
   end
 end
 

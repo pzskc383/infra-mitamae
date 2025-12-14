@@ -1,6 +1,6 @@
 # PF firewall cookbook
 node.reverse_merge!({
-  pf_enable_relayd: false,
+  pf_enable_relayd: false
 })
 
 include_recipe 'defines.rb'
@@ -37,7 +37,6 @@ file "/etc/pf/banned.table" do
   content ""
   not_if { ::File.exist?("/etc/pf/banned.table") }
 end
-
 
 link "/etc/rc.d/pflogd1" do
   to "/etc/rc.d/pflogd"

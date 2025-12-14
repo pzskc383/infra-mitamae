@@ -91,6 +91,7 @@ DEPENDENCIES
   bcrypt_pbkdf (~> 1.0)
   ed25519 (~> 1.2)
   hocho
+  itamae (~> 1.14)
   rake
   rubocop
   rubocop-itamae

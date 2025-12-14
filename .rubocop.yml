@@ -4,7 +4,7 @@ plugins:
   - rubocop-itamae
   - rubocop-thread_safety
   - rubocop-performance
-  
+
 
 AllCops:
   NewCops: enable
@@ -34,19 +34,24 @@ Style/Documentation:
 Style/RegexpLiteral:
   EnforcedStyle: percent_r
 
+Metrics/ClassLength:
+  Max: 400
+
 Metrics/MethodLength:
-  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
-  Max: 30
+  Max: 40
+
+Metrics/BlockLength:
+  Max: 40
 
 Metrics/AbcSize:
   CountRepeatedAttributes: false
-  Max: 35
-
-Metrics/PerceivedComplexity:
-  Max: 20
+  Max: 30
 
 Metrics/CyclomaticComplexity:
-  Max: 20
+  Max: 10
+
+Metrics/PerceivedComplexity:
+  Max: 10
 
 Style/FrozenStringLiteralComment:
   Enabled: false
@@ -74,4 +79,7 @@ Style/FormatStringToken:
   Enabled: false
 
 Security/YAMLLoad:
-  Enabled false
+  Enabled: false
+
+Itamae/RecipePath:
+  Enabled: false

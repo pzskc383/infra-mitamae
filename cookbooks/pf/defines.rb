@@ -1,5 +1,5 @@
 node.reverse_merge!({
-  pf_snippets: [],
+  pf_snippets: []
 })
 
 # check and reload pf config
@@ -15,7 +15,6 @@ template "pf_dynamic_services" do
   mode "0600"
   notifies :run, "execute[reload_pf]"
 end
-
 
 define :pf_snippet, content: nil do
   node[:pf_snippets] << (params[:content] || params[:name])

@@ -65,7 +65,7 @@ template '/etc/knot/knot.conf' do
   mode '0644'
   owner 'root'
   group 'wheel'
-  other_hosts = node[:hosts].reject { |k,v| k == node[:hostname] }
+  other_hosts = node[:hosts].reject { |k, _v| k == node[:hostname] }
   variables(
     knot_zones: node[:knot_zones],
     knot_tsig_secret: node[:knot_tsig_secret],
@@ -79,6 +79,7 @@ service 'knot' do
   action %i[enable start]
 end
 
+KNOT_KEYTYPES = %w[KSK ZSK].freeze
 node[:knot_zones].each do |z|
   now = Time.now
   midnight = Time.new(now.year, now.month, now.day, 0, 0, 0)
@@ -87,7 +88,7 @@ node[:knot_zones].each do |z|
   next unless z[:primary] == node[:hostname]
 
   zone = z[:name]
-  dnskey = node[:knot_dnssec].reject {|d| d[:zone] != zone }.first
+  dnskey = node[:knot_dnssec].find { |d| d[:zone] == zone }
 
   template "#{z[:name]}.zone" do
     source "templates/zones/#{z[:name]}.zone.erb"
@@ -101,21 +102,17 @@ node[:knot_zones].each do |z|
       hosts: node[:hosts],
       serial: serial
     )
-
   end
 
   execute "reload #{zone}" do
-    command <<-EOC
-      knotc zone-check #{zone} && \
-      knotc zone-reload #{zone}
-    EOC
+    command "knotc zone-check #{zone} && knotc zone-reload #{zone}"
   end
 
   knot_domain_ksk dnskey[:zone] do
     ksk dnskey[:ksk]
   end
 
-  %w[KSK ZSK].each do |keytype|
+  KNOT_KEYTYPES.each do |keytype|
     execute "keymgr cleanup #{keytype} in #{zone}" do
       # remove all but first key of each type
       command <<~CMD

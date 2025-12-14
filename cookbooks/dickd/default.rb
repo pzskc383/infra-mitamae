@@ -27,7 +27,7 @@ end
 file "/etc/inetd.conf" do
   action :edit
   block do |data|
-    data.gsub(%r[^telnet.*$], '')
+    data.gsub(%r{^telnet.*$}, '')
     <<-EOF
       #{data}
       telnet stream  tcp  nowait nobody  #{dickd_bin}  erection

@@ -10,6 +10,6 @@ define :sysctl, settings: [] do
   lines_in_file "/etc/sysctl.conf" do
     lines settings
   end
-  
+
   notify! "run@execute[reload sysctl]"
 end

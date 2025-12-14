@@ -8,7 +8,7 @@ properties:
     - cookbooks/lego_fqdn/default.rb
     - cookbooks/lego_domains/default.rb
     - cookbooks/dickd/default.rb
-    # - cookbooks/ldap/default.rb
+    - cookbooks/ldap/default.rb
     - cookbooks/smtpd/default.rb
     # - cookbooks/dovecot/default.rb
     # - cookbooks/rspamd/default.rb

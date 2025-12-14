@@ -37,7 +37,6 @@ node[:mail_role] = mail_role
 node[:mail_primary_domains] = primary_domains
 node[:mail_relay_domains] = relay_domains
 
-
 # fqdn+fcrdns
 template "/etc/mail/mailname" do
   source "templates/mailname.erb"

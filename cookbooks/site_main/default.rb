@@ -8,7 +8,7 @@ remote_file "/etc/httpd.conf.d/main_pzskc383.conf" do
   source "templates/main_pzskc383.conf.erb"
   notifies :reload, 'service[httpd]'
 end
-  
+
 node[:httpd_config_files] << "main_pzskc383.conf"
 notify!("create@template[/etc/httpd.conf]")
 

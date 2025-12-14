@@ -1,4 +1,4 @@
-include_recipe 'lib/helpers'
+include_recipe 'helpers'
 
 define :host, ssh: nil, attributes: {} do
   host = params[:name]
@@ -7,12 +7,12 @@ define :host, ssh: nil, attributes: {} do
 
   attrs = [
     { properties: { attributes: globals } },
-    host_config, 
+    host_config,
     { properties: { attributes: params[:attributes] } }
-  ].reduce({}) do |a,x|
-    DeployHelpers.deep_merge(a,x)
+  ].reduce({}) do |a, x|
+    DeployHelpers.deep_merge(a, x)
   end
-  
+
   node[:hosts] ||= {}
   node[:hosts][params[:name]] = attrs
 end
@@ -26,13 +26,9 @@ define :run_on, file: nil, attributes: {}, dry_run: false do
   raise "Recipe file does not exist: #{recipe_file}" unless File.exist?(recipe_file)
 
   host_config = node[:hosts][hostname]
+  host_config[:properties][:attributes].merge!(extra_attributes)
 
-  all_attributes = DeployHelpers.deep_merge(
-    host_config[:properties][:attributes] || {},
-    extra_attributes
-  )
-
-  deploy_dir = "/tmp/mitamae-local-deploy-#{hostname}"
+  deploy_dir = "./tmp/deploy-#{hostname}"
   recipe_basename = File.basename(recipe_file)
 
   execute "create_deploy_dir_#{hostname}" do
@@ -63,13 +59,13 @@ define :run_on, file: nil, attributes: {}, dry_run: false do
   ssh_info = host_config[:ssh_options]
 
   puts host_config.inspect
-  
+
   ssh_target = ssh_info[:target] || "#{ssh_info[:user]}@#{ssh_info[:host_name]}"
   ssh_port = ssh_info[:port] || 22
-  remote_path = "/tmp/mitamae-deploy-#{hostname}"
+  remote_path = DeployHelpers.tmpdirname
 
-  ssh_opts = (ssh_port != 22 && ssh_info[:target].nil?) ? "-p #{ssh_port}" : ""
-  scp_opts = (ssh_port != 22 && ssh_info[:target].nil?) ? "-P #{ssh_port}" : ""
+  ssh_opts = ssh_port != 22 && ssh_info[:target].nil? ? "-p #{ssh_port}" : ""
+  scp_opts = ssh_port != 22 && ssh_info[:target].nil? ? "-P #{ssh_port}" : ""
 
   execute "scp_to_#{hostname}" do
     command "scp #{scp_opts} -r #{deploy_dir}/ #{ssh_target}:#{remote_path}"
