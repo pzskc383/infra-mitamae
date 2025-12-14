@@ -48,14 +48,20 @@ kex_values = %w[
   diffie-hellman-group18-sha512
   diffie-hellman-group-exchange-sha256
 ].join(',')
-ssh_opts = %W[
-  Port=38322
-  PermitRootLogin=prohibit-password
-  PasswordAuthentication=no
-  KexAlgorithms=#{kex_values}
-  MACs=umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
-  HostKeyAlgorithms=ssh-ed25519,rsa-sha2-256,rsa-sha2-512
-]
+ssh_opts = [
+  "PermitRootLogin prohibit-password",
+  "PasswordAuthentication no",
+  "KexAlgorithms #{kex_values}",
+  "MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com",
+  "HostKeyAlgorithms ssh-ed25519,rsa-sha2-256,rsa-sha2-512",
+  "Port 38322"
+].map do |line|
+  {
+    line: line,
+    regexp: %r{^\s*#?\s*#{line.split.first}\s+.*$},
+    append: true
+  }
+end
 
 lines_in_file "/etc/ssh/sshd_config" do
   lines ssh_opts

@@ -90,9 +90,9 @@ node[:knot_zones].each do |z|
   zone = z[:name]
   dnskey = node[:knot_dnssec].find { |d| d[:zone] == zone }
 
-  template "#{z[:name]}.zone" do
-    source "templates/zones/#{z[:name]}.zone.erb"
-    path "/var/db/knot/zones/#{z[:name]}.zone"
+  template "#{zone}.zone" do
+    source "templates/zones/#{zone}.zone.erb"
+    path "/var/db/knot/zones/#{zone}.zone"
 
     mode '0640'
     owner '_knot'
@@ -102,10 +102,14 @@ node[:knot_zones].each do |z|
       hosts: node[:hosts],
       serial: serial
     )
+
+    notifies :run, "execute[reload #{zone}]"
   end
 
   execute "reload #{zone}" do
-    command "knotc zone-check #{zone} && knotc zone-reload #{zone}"
+    action :nothing
+    command "knotc zone-reload #{zone}"
+    only_if "knotc zone-check #{zone}"
   end
 
   knot_domain_ksk dnskey[:zone] do

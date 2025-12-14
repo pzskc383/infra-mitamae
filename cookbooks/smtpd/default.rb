@@ -4,7 +4,6 @@ node[:mail_admin_aliases] ||= %w[MAILER-DAEMON postmaster hostmaster
                                  operator www security manager dumper
                                  noc webmaster]
 
-# Determine mail role for this host based on mail_domains configuration
 primary_domains = []
 relay_domains = []
 mail_accounts = []
@@ -32,12 +31,10 @@ end
 
 mail_role = primary_domains.empty? ? "secondary" : "primary"
 
-# Store calculated values for use in templates
 node[:mail_role] = mail_role
 node[:mail_primary_domains] = primary_domains
 node[:mail_relay_domains] = relay_domains
 
-# fqdn+fcrdns
 template "/etc/mail/mailname" do
   source "templates/mailname.erb"
   mode "0664"
@@ -47,7 +44,6 @@ template "/etc/mail/mailname" do
   notifies :restart, "service[smtpd]"
 end
 
-# For primary servers, set up virtual users and password file
 if mail_role == "primary"
   include_recipe "mailpasswd_group.rb"
   include_recipe "../dovecot/vmail_user.rb"
@@ -63,6 +59,24 @@ if mail_role == "primary"
     mode "0640"
     group "_mailpasswd"
   end
+
+  # openbsd_package "opensmtpd-table-ldap"
+  # smtpd_bind_pw = node[:ldapd_service_accounts].first { |a| a[:name] == "smtpd" }[:password]
+  # template "/etc/mail/ldap_table.conf" do
+  #   variables(
+  #     base_dn: node[:ldapd_base_dn],
+  #     smtpd_bind_pw: smtpd_bind_pw
+  #   )
+  # end
+  # mail_accounts.each do |acc|
+  #   ldap_object "mail=#{acc[:email]},ou=accounts,dc=b0x,dc=pw"
+  #   server node[:ldapd_server]
+  #   attrs({
+  #     objectClass: 'loginAccount',
+  #     mail: acc[:email],
+  #     userPassword: "{CRYPT}#{acc[:password_hash]}"
+  #   })
+  # end
 end
 
 template "/etc/mail/vdomains" do
@@ -121,7 +135,6 @@ execute "makemap passwd" do
   command "makemap -t set /etc/mail/passwd"
 end
 
-# Deploy main smtpd configuration
 template "/etc/mail/smtpd.conf" do
   source "templates/smtpd.conf.erb"
   mode "0640"
@@ -152,12 +165,9 @@ execute "restart_smtpd" do
 end
 
 include_recipe "../pf/defines.rb"
-
-# Add PF firewall rules for mail services
 pf_snippet "mail" do
+  ports = mail_role == 'primary' ? '{ smtp submission }' : 'smtp'
   content <<~PF
-    # mail services
-    table <spamd> persist
-    pass in proto tcp to port { smtp#{' submission imaps' if mail_role == 'primary'} }
+    pass in proto tcp to port #{ports}
   PF
 end

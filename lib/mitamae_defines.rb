@@ -1,5 +1,8 @@
 define :block_in_file, content: nil, marker_start: nil, marker_end: nil do
-  file params[:name] do
+  filename = params[:name]
+  run_command("test -f #{filename} || touch #{filename}", error: false)
+
+  file filename do
     action :edit
     block do |data|
       marker_start = params[:marker_start] || "# BEGIN MITAMAE MANAGED BLOCK"
@@ -13,69 +16,66 @@ define :block_in_file, content: nil, marker_start: nil, marker_end: nil do
 end
 
 define :lines_in_file, lines: [] do
-  operations = params[:lines].map do |line|
-    operation = case line
-                when Hash, ::Hashie::Mash
-                  line
-                when String
-                  match = %r{(?<key>[^=]+)=(?<value>.+)}.match(line)
-                  if match.nil?
-                    { line: line }
-                  else
-                    {
-                      line: "#{match[:key]}=#{match[:value]}",
-                      regexp: %r{#{Regexp.escape(match[:key])}\s*=\s*}
-                    }
-                  end
-                else
-                  raise "Unknown line supplied: #{line.class}"
-                end
-
-    operation[:append] ||= true
-    operation[:regexp] ||= %r{#{Regexp.escape(operation[:line])}}
-
-    operation
+  commands = params[:lines].map do |line|
+    command =
+      case line
+      when ::Hashie::Mash
+        line
+      else
+        hash_line =
+          case line
+          when Hash
+            ::Hashie::Mash.new(line)
+          when String
+            match = %r{(?<key>[^=]+?)(?<equals>\s*=\s*)(?<value>.+)}.match(line)
+            if match.nil?
+              { line: line }
+            else
+              {
+                line: "#{match[:key]}#{match[:equals]}#{match[:value]}",
+                regexp: %r{^\s*#?\s*#{Regexp.escape(match[:key])}\s*=.*$}
+              }
+            end
+          else
+            raise "Unknown line supplied: #{line.class}"
+          end
+        Hashie::Mash.new(hash_line)
+      end
+    command.append = true unless command.append == false
+    if command.regexp.nil?
+      command.regexp = %r{#{Regexp.escape(command.line)}}
+    elsif command.regexp.is_a? String
+      command.regexp = %r{#{Regexp.escape(command.regexp)}}
+    end
+    command
   end
 
   file params[:name] do
     action :edit
     block do |data|
-      operations.each do |cmd|
-        replacements = 0
-        data.gsub!(%r{^.*$}) do |l|
-          if cmd[:regexp].match?(l) && cmd[:line] != l
-            ::MItamae.logger.debug "Replacing #{l} with #{cmd[:line]}"
-            replacements += 1
-            cmd[:line]
-          else
-            l
-          end
+      commands.each do |cmd|
+        cmd.replacements = 0
+        cmd.matches = 0
+        data.gsub!(cmd.regexp) do |lm|
+          already_replaced = lm == cmd.line
+          cmd.replacements += 1 unless already_replaced
+          cmd.matches += 1
+          cmd.line.chomp
         end
-        "#{data}\n#{cmd[:line]}" if replacements == 0 && cmd[:append]
+        data.replace "#{data}#{cmd.line}\n" if cmd.matches == 0 && cmd.append
       end
     end
   end
 end
 
-define :line_in_file, line: nil, pattern: nil, append: true do
-  ::MItamae.logger.warning "using slow compat method!"
-  lines_in_file params[:name] do
-    lines [{
-      line: params[:line],
-      pattern: params[:pattern],
-      append: params[:append]
-    }]
-  end
-end
-
 NOTIFY_RX = %r{(?<action>[^@]+)@(?<resource>[^\[]+)\[(?<name>[^\]]+)\]}
 
-# format: notify! "run@execute[my operation]"
+# format: notify! "run@execute[my command]"
 define :notify! do
   parsed = NOTIFY_RX.match(params[:name])
   raise "invalid notify! spec: #{params[:name]}" if parsed.nil?
 
-  local_block_name = ["notify", parsed[:action], parsed[:resource], parsed[:name]].join('/')
+  local_block_name = ["notify", parsed[:action], parsed[:resource], parsed[:name]].join(':')
 
   local_ruby_block local_block_name do
     block {} # rubocop:disable Lint/EmptyBlock

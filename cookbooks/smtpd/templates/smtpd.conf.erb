@@ -9,7 +9,7 @@ smtp limit max-rcpt 5
 smtp max-message-size 100M
 
 table vdomains file:/etc/mail/vdomains
-<% if @mail_role == 'primary' -%>
+<%- if @mail_role == 'primary' -%>
 table vusers file:/etc/mail/vusers
 table passwd file:/etc/mail/passwd
 
@@ -19,9 +19,11 @@ listen on all port 25 tls pki fqdn \
 listen on all port 587 tls-require pki fqdn \
     hostname $fqdn tag MSA auth <passwd> mask-src
 
-action "deliver" \
-    mda "/usr/local/libexec/dovecot/dovecot-lda -d %{dest} -r %{rcpt} -f %{sender}" \
+action "deliver-lda" \
+    mda "/usr/local/libexec/dovecot/dovecot-lda -d %{dest} -r %{rcpt} -a %{rcpt:strip} -f %{mbox.from}" \
     virtual <vusers> user "vmail"
+    
+action "deliver" lmtp "/var/dovecot/lmtp" rcpt-to virtual <vusers>
 
 action "relay" relay helo $fqdn
 
@@ -30,7 +32,7 @@ match from any auth for any action "relay"
 match from local for local action "deliver"
 match from local for domain <vdomains> action "deliver"
 match from local for any action "relay"
-<% else -%>
+<%- else -%>
 listen on egress port 25 tls pki fqdn \
     hostname $fqdn tag MTA
 
@@ -39,4 +41,4 @@ action "local" mbox
 
 match for local action "local"
 match from any for domain <vdomains> action "relay"
-<% end -%>
+<%- end -%>

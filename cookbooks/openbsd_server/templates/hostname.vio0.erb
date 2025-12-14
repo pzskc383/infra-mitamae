@@ -1,7 +1,14 @@
-inet <%= node.network_setup.v4.address %>
-<%- if node.network_setup.v6.use_slaacd -%>
-# inet6 autoconf -soii -temporary eui64
-inet6 <%= node.network_setup.v6.address %>
+<%- if node.network_setup.snippet -%>
+<%= node.network_setup.snippet %>
 <%- else -%>
+<%-   if node.network_setup.v4.use_dhcp -%>
+inet autoconf
+<%-   else -%>
+inet <%= node.network_setup.v4.address %>
+<%-   end -%>
+<%-   if node.network_setup.v6.use_slaac -%>
+inet6 autoconf -soii -temporary
+<%-   else -%>
 inet6 <%= node.network_setup.v6.address %>
+<%-   end -%>
 <%- end -%>

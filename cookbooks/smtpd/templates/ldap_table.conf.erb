@@ -1,0 +1,23 @@
+url ldap://127.0.0.1
+username cn=smtpd,ou=services,dc=pzskc383,dc=net
+password <%= @smtpd_bind_pw %>
+basedn ou=accounts,<%= @base_dn %>
+
+# alias_filter (&(objectClass=person)(uid=%s))
+# alias_attributes mail
+
+# filter to use for user credentials
+credentials_filter (&(objectclass=loginAccount)(mail=%s))
+credentials_attributes mail,userPassword
+
+# filter to use for domain lookup
+# domain_filter (&(objectclass=rFC822localPart)(dc=%s))
+# domain_attributes dc
+
+# filter to use for userinfo
+# userinfo_filter (&(objectclass=person)(uid=%s))
+# userinfo_attributes uidNumber,gidNumber,homeDirectory
+
+# filter to use for mail addresses
+# mailaddr_filter (&(objectclass=person)(uid=%s))
+# mailaddr_attributes mail

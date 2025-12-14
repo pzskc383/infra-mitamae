@@ -1,4 +1,6 @@
+<%- unless node.network_setup.v6.use_dhcp -%>
 <%= node.network_setup.v4.gateway %>
-<%- unless node.network_setup.v6.use_slaacd -%>
+<%- end %>
+<%- unless node.network_setup.v6.use_slaac -%>
 <%= node.network_setup.v6.gateway %>
 <%- end %>

@@ -5,13 +5,9 @@ define :host, ssh: nil, attributes: {} do
   globals = DeployHelpers.load_config("./data/vars")
   host_config = DeployHelpers.load_config("./data/hosts/#{host}")
 
-  attrs = [
-    { properties: { attributes: globals } },
-    host_config,
-    { properties: { attributes: params[:attributes] } }
-  ].reduce({}) do |a, x|
-    DeployHelpers.deep_merge(a, x)
-  end
+  attrs = ::Hashie::Mash.new({ properties: { attributes: globals } })
+  attrs.merge!(host_config)
+  attrs.properties.attributes.merge! params[:attributes]
 
   node[:hosts] ||= {}
   node[:hosts][params[:name]] = attrs
@@ -57,8 +53,6 @@ define :run_on, file: nil, attributes: {}, dry_run: false do
   end
 
   ssh_info = host_config[:ssh_options]
-
-  puts host_config.inspect
 
   ssh_target = ssh_info[:target] || "#{ssh_info[:user]}@#{ssh_info[:host_name]}"
   ssh_port = ssh_info[:port] || 22

@@ -1,3 +1,5 @@
+node[:newsyslog_extra_lines] = []
+
 include_recipe "defines.rb"
 
 openbsd_package "vim" do
@@ -25,8 +27,13 @@ file "/etc/resolv.conf" do
   mode "0644"
 end
 
-if node[:network_setup][:v6][:use_slaacd]
+if node[:network_setup][:v6][:use_slaac]
   service "slaacd" do
+    action %i[enable start]
+  end
+end
+if node[:network_setup][:v4][:use_dhcp]
+  service "dhcpleased" do
     action %i[enable start]
   end
 end
@@ -38,7 +45,7 @@ end
 
 %w[mygate hostname.vio0].each do |netfile|
   template "/etc/#{netfile}" do
-    notifies :run, "execute[netstart]"
+    # notifies :run, "execute[netstart]"
   end
 end
 

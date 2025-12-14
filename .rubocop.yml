@@ -83,3 +83,9 @@ Security/YAMLLoad:
 
 Itamae/RecipePath:
   Enabled: false
+
+Layout/CaseIndentation:
+  EnforcedStyle: end
+  
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable

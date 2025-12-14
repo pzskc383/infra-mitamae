@@ -2,7 +2,7 @@
 dickd_bin = "/usr/local/bin/erection"
 dickd_builddir = "/tmp/dickd-build"
 
-has_dickd = run_command("test -x #{dickd_bin}").exit_status == 0
+has_dickd = run_command("test -x #{dickd_bin}", error: false).exit_status == 0
 
 directory dickd_builddir do
   not_if { has_dickd }
@@ -24,16 +24,15 @@ directory dickd_builddir do
   not_if { has_dickd }
 end
 
-file "/etc/inetd.conf" do
-  action :edit
-  block do |data|
-    data.gsub(%r{^telnet.*$}, '')
-    <<-EOF
-      #{data}
-      telnet stream  tcp  nowait nobody  #{dickd_bin}  erection
-      telnet stream  tcp6 nowait nobody  #{dickd_bin}  erection
-    EOF
-  end
+block_in_file "/etc/inetd.conf" do
+  marker_start "# 8==================================>"
+  marker_end   "# <==================================8"
+  content <<~EOCONF
+    telnet stream  tcp  nowait nobody  #{dickd_bin}  erection
+    telnet stream  tcp6 nowait nobody  #{dickd_bin}  erection
+  EOCONF
+
+  notifies :restart, "service[inetd]"
 end
 
 pf_snippet "pass proto tcp to port telnet"

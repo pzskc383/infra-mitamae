@@ -8,8 +8,8 @@ mail_domains:
       - airstrip3
 
   pzskc383.dp.ua:
-    admin_account: maniac@pzskc383.net
-    catchall_account: maniac@pzskc383.net
+    admin_account: maniac@pzskc383.dp.ua
+    catchall_account: maniac@pzskc383.dp.ua
     catchall_subdomains: true
     servers:
       - f0rk

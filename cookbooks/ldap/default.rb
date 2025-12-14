@@ -1,8 +1,11 @@
 node.reverse_merge!({
   ldapd_base_dn: '',
   ldapd_bind_pw: '',
-  ldapd_service_accounts: %w[dovecot smtpd],
-  ldapd_extra_schemas: %w[misc]
+  ldapd_service_accounts: [
+    { name: "dovecot" },
+    { name: "smtpd" }
+  ],
+  ldapd_extra_schemas: %w[custom]
 })
 
 openbsd_package "openldap-client"
@@ -10,15 +13,28 @@ openbsd_package "openldap-client"
 base_dn = node[:ldapd_base_dn]
 bind_dn = "cn=root,#{base_dn}"
 
-if node[:ldapd_bind_pw_hash].empty?
-  encrypt_result = run_command("echo #{node[:ldapd_bind_pw]} |encrypt")
-  raise RuntimeError if encrypt_result.exit_status != 0
+node[:ldapd_service_accounts].map do |svc|
+  if svc[:password].nil?
+    generate_result = run_command("dd if=/dev/random bs=1 |tr -dc 'a-zA-Z0-9'|dd bs=1 count=20")
+    svc[:password] = generate_result.stdout.chomp
+  end
 
-  node[:ldapd_bind_pw_hash] = "{CRYPT}#{encrypt_result.stdout}"
+  if svc[:hashed_password].nil?
+    encrypt_result = run_command("echo #{svc[:password]} |encrypt")
+    svc[:hashed_password] = encrypt_result.stdout.chomp
+  end
+
+  svc
 end
 
-remote_file "/etc/ldap/misc.schema" do
-  source "files/schema/misc.schema"
+if node[:ldapd_bind_pw_hash].nil?
+  encrypt_result = run_command("echo #{node[:ldapd_bind_pw]} |encrypt")
+
+  node[:ldapd_bind_pw_hash] = "{CRYPT}#{encrypt_result.stdout.chomp}"
+end
+
+remote_file "/etc/ldap/custom.schema" do
+  source "files/custom.schema"
 end
 
 template "/etc/ldapd.conf" do
@@ -35,7 +51,7 @@ template "/etc/ldapd.conf" do
     schemas: node[:ldapd_extra_schemas]
   )
 
-  notifies :restart, "service[ldapd]"
+  notifies :restart, "service[ldapd]", :immediately
 end
 
 service "ldapd" do
@@ -54,26 +70,25 @@ ldap_objects = [
     description: "Root entry for LDAP server"
   },
   {
-    dn: "ou=people,#{base_dn}",
+    dn: "ou=accounts,#{base_dn}",
     objectClass: "organizationalUnit",
-    ou: "people",
-    description: "All users in organization"
+    ou: "accounts",
+    description: "All accounts"
   },
   {
     dn: "ou=services,#{base_dn}",
     objectClass: "organizationalUnit",
     ou: "services",
-    description: "All services in organization"
+    description: "All services"
   }
 ]
 
 node[:ldapd_service_accounts].each do |service|
   ldap_objects << {
-    dn: "cn=#{service},#{base_dn}",
-    objectClass: "person",
-    cn: service,
-    sn: service,
-    description: "a #{service} service account"
+    dn: "name=#{service.name},ou=services,#{base_dn}",
+    objectClass: "authService",
+    name: service.name,
+    userPassword: "{CRYPT}#{service.hashed_password}"
   }
 end
 
