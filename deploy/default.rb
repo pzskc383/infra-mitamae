@@ -1,6 +1,6 @@
 include_recipe 'defines.rb'
 
-host "a2mm" do
+host "airstrip3" do
   attributes(
     dns_shortname: 'a2'
   )
@@ -12,8 +12,8 @@ host "f0rk" do
   )
 end
 
-# run_on "a2mm" do
-#   file "deploy/recipes/a2mm.rb"
+# run_on "airstrip3" do
+#   file "deploy/recipes/airstrip3.rb"
 # end
 # run_on "f0rk" do
 # file "deploy/recipes/f0rk.rb"

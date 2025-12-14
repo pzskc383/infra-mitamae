@@ -1,0 +1,14 @@
+properties:
+  run_list:
+    - cookbooks/openbsd_server/default.rb
+    - cookbooks/pf/default.rb
+    - cookbooks/openbsd_admin/default.rb
+    - cookbooks/knot/default.rb
+    - cookbooks/dickd/default.rb
+    - cookbooks/smtpd/default.rb
+  attributes:
+    dns_shortname: a3
+    motd: |
+      -----------------
+      a i r s t r i p 3
+      -----------------

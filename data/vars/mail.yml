@@ -5,7 +5,7 @@ mail_domains:
     catchall_subdomains: true
     servers:
       - f0rk
-      - a2mm
+      - airstrip3
 
   pzskc383.dp.ua:
     admin_account: maniac@pzskc383.net
@@ -13,7 +13,7 @@ mail_domains:
     catchall_subdomains: true
     servers:
       - f0rk
-      - a2mm
+      - airstrip3
 
   post.b0x.pw:
     admin_account: owner@post.b0x.pw
@@ -24,4 +24,4 @@ mail_domains:
       - reports: owner@post.b0x.pw
     servers:
       - f0rk
-      - a2mm
+      - airstrip3
