@@ -45,27 +45,31 @@ end
 # holds 'example' when base_dn: dc=example,dc=com
 root_dc_part = base_dn.split(',').first.split('=').last
 
-ldap_objects = {
-  base_dn => {
+ldap_objects = [
+  {
+    dn: base_dn,
     objectClass: %w[dcObject organization],
     dc: root_dc_part,
     o: "LDAP Server",
     description: "Root entry for LDAP server"
   },
-  "ou=people,#{base_dn}" => {
+  {
+    dn: "ou=people,#{base_dn}",
     objectClass: "organizationalUnit",
     ou: "people",
     description: "All users in organization"
   },
-  "ou=services,#{base_dn}" => {
+  {
+    dn: "ou=services,#{base_dn}",
     objectClass: "organizationalUnit",
     ou: "services",
     description: "All services in organization"
   }
-}
+]
 
 node[:ldapd_service_accounts].each do |service|
-  ldap_objects["cn=#{service},#{base_dn}"] = {
+  ldap_objects << {
+    dn: "cn=#{service},#{base_dn}",
     objectClass: "person",
     cn: service,
     sn: service,
@@ -80,9 +84,12 @@ node[:ldapd_server] = {
   bind_secret: node[:ldapd_bind_pw]
 }
 
-ldap_objects.each do |dn, attributes|
+ldap_objects.each do |obj|
+  dn = obj[:dn]
+  attrs = obj.except(:dn)
   ldap_object dn do
+    dn dn
     server node[:ldapd_server]
-    attrs attributes
+    attrs attrs
   end
 end

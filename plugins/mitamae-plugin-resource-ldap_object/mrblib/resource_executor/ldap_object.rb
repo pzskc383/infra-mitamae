@@ -3,7 +3,9 @@ module ::MItamae
     module ResourceExecutor
       class LdapObject < ::MItamae::ResourceExecutor::Base
         def set_current_attributes(current, _action)
-          current.exists = exists_on_server?(attributes.server, attributes.dn)
+          exists, attrs = check_on_server(attributes.server, attributes.dn)
+          current.exists = exists
+          current.attrs = attrs
         end
 
         def set_desired_attributes(desired, action)
@@ -12,6 +14,8 @@ module ::MItamae
             desired.exists = true
           when :remove
             desired.exists = false
+          else
+            raise ArgumentError, "LDAP Object unknown action #{action}"
           end
         end
 
@@ -29,6 +33,8 @@ module ::MItamae
         private
 
         def ldap_cmd(action, server, name, attrs)
+          ::MItamae.logger.debug "LDAP Object: #{action.to_s.upcase} '#{name}' with #{JSON.dump(attrs)}"
+
           case action
           when :add
             cmdbase = "ldapadd"
@@ -41,34 +47,24 @@ module ::MItamae
             ldif = build_del_ldif(name)
           end
 
-          ldap_mod_cmd = Shellwords.join([
-                                           cmdbase,
-                                           "-H", server.host,
-                                           "-D", server.bind_dn,
-                                           "-w", server.bind_secret
-                                         ])
-          ::MItamae.logger.info ldap_mod_cmd.inspect
+          ldap_mod_cmd = [
+            cmdbase,
+            "-H", server.host,
+            "-D", server.bind_dn,
+            "-w", server.bind_secret
+          ]
 
-          IO.popen(ldap_mod_cmd, 'r+') do |io|
-            ::MItamae.logger.info "writing LDIF"
-            io.write(ldif)
-            io.close_write
-            ::MItamae.logger.info "Sent LDIF:"
-            ::MItamae.logger.info ldif
-            ::MItamae.logger.info "Got Output:"
-            ::MItamae.logger.info io.readlines
-            io.close
+          ldif_file = Tempfile.new "ldif"
+          ldif_file.write ldif
+
+          cmdline = "cat #{ldif_file.path} | #{Shellwords.join(ldap_mod_cmd)}"
+          cmd_status = run_command(cmdline, error: false)
+
+          raise "Error running #{cmdbase}: #{cmd_status.stderr}" if cmd_status.exit_status > 0
+
+          cmd_status.stdout.chomp.lines.each do |l|
+            ::MItamae.logger.debug "LDAP Object #{cmdbase} output: #{l.chomp}"
           end
-
-          exit_status = wait_thr.value
-          if exit_status.success?
-            ::MItamae.logger.info "LDAP operation completed successfully"
-          else
-            error_output = stderr.read
-            raise "LDAP operation failed with exit status #{exit_status.exitstatus}: #{error_output}"
-          end
-
-          stdout.read
         end
 
         def build_add_ldif(name, attrs)
@@ -106,24 +102,50 @@ module ::MItamae
           ldif_lines.join("\n")
         end
 
-        def exists_on_server?(server, name)
+        def check_on_server(server, name)
           base_dn = server.root_dn
           identifier, search_base = name.split(',')
           search_base = base_dn if search_base.length < base_dn.length
 
           ldap_search_cmd = [
-            "ldap", "search",
+            "ldapsearch", "-LLL",
             "-H", server.host,
             "-b", search_base,
             "-D", server.bind_dn,
             "-w", server.bind_secret,
-            "'(#{identifier})'",
-            "|", "wc", "-l"
-          ].join(' ')
+            "(#{identifier})"
+          ]
 
-          object_check_result = run_command(ldap_search_cmd)
+          object_check_result = run_command(ldap_search_cmd, error: false)
 
-          object_check_result.stdout.chomp!.to_i > 0
+          attributes = {}
+          exists = object_check_result.exit_status == 0 && !object_check_result.stdout.chomp.empty?
+
+          attributes = parse_ldif_to_attrs(object_check_result.stdout) if exists
+          ::MItamae.logger.debug "LDAP Object check exists/attrs: #{exists.inspect}, #{attributes.inspect}"
+
+          [exists, attributes]
+        end
+
+        def parse_ldif_to_attrs(ldif)
+          attrs = {}
+          ldif.lines.map(&:chomp).each do |line|
+            k, v = line.split(': ')
+            next if line.empty?
+            next if k == 'version'
+            next if k == 'dn'
+
+            case attrs[k]
+            when String
+              attrs[k] = [attrs[k], v]
+            when Array
+              attrs[k] << v
+            when nil
+              attrs[k] = v
+            end
+          end
+
+          attrs
         end
       end
     end
